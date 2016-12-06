@@ -114,7 +114,6 @@ Object.defineProperty(window,'permission_external_communication',{
       enumerable:false
     });
 //(Object.freeze || Object)(Object.prototype);			
-// magari posso bloccare solo le chiamate fuori dall'host attuale
 // permission_navigator 
 Object.defineProperty(window,'permission_navigator',{
       value:${policy_array[7]},
@@ -180,178 +179,178 @@ Object.defineProperty(window,'permission_change_location_href',{
       writable:false,
       enumerable:false
     });
-//(Object.freeze || Object)(Object.prototype);			
+//(Object.freeze || Object)(Object.prototype);	
 	
 	
-	//mancano  domaccess-read e domaccess-write
+//missing  domaccess-read e domaccess-write
 
-	var c;
-	if(!permission_ui){
-		// windo.alert
-		var alert =  new Proxy(function() {}, {
-		  apply: function(target, thisArg, argumentsList) {
-		    console.log('ui alert DISABLED');
-		  }
-		});
-		Object.defineProperty(window,'alert',{
-      configurable:false,
-      writable:false,
-      enumerable:false
-     });				
-		//(Object.freeze || Object)(Object.prototype);
-		// window.prompt
-		var prompt =  new Proxy(function() {}, {
-		  apply: function(target, thisArg, argumentsList) {
-		    console.log('ui prompt DISABLED');
-		  }
-		});
-		Object.defineProperty(window,'prompt',{
-      configurable:false,
-      writable:false,
-      enumerable:false
-     });				
-		//(Object.freeze || Object)(Object.prototype);
-		// window.confirm
-		var confirm =  new Proxy(function() {}, {
-		  apply: function(target, thisArg, argumentsList) {
-		    console.log('ui confirm DISABLED');
-		  }
-		});
-		Object.defineProperty(window,'confirm',{
-      configurable:false,
-      writable:false,
-      enumerable:false
-     });				
-		//(Object.freeze || Object)(Object.prototype);	
-		// window.open
-		var open =  new Proxy(function() {}, {
-		  apply: function(target, thisArg, argumentsList) {
-		    console.log('ui open DISABLED');
-		  }
-		});
-		Object.defineProperty(window,'open',{
-      configurable:false,
-      writable:false,
-      enumerable:false
-     });				
-		//(Object.freeze || Object)(Object.prototype);				
-	}
-	if(!permission_read_cookie && !permission_write_cookie){
+var c;
+if(!permission_ui){
+	// windo.alert
+	var alert =  new Proxy(function() {}, {
+	  apply: function(target, thisArg, argumentsList) {
+	    console.log('ui alert DISABLED');
+	  }
+	});
+	Object.defineProperty(window,'alert',{
+    configurable:false,
+    writable:false,
+    enumerable:false
+   });				
+	//(Object.freeze || Object)(Object.prototype);
+	// window.prompt
+	var prompt =  new Proxy(function() {}, {
+	  apply: function(target, thisArg, argumentsList) {
+	    console.log('ui prompt DISABLED');
+	  }
+	});
+	Object.defineProperty(window,'prompt',{
+    configurable:false,
+    writable:false,
+    enumerable:false
+   });				
+	//(Object.freeze || Object)(Object.prototype);
+	// window.confirm
+	var confirm =  new Proxy(function() {}, {
+	  apply: function(target, thisArg, argumentsList) {
+	    console.log('ui confirm DISABLED');
+	  }
+	});
+	Object.defineProperty(window,'confirm',{
+    configurable:false,
+    writable:false,
+    enumerable:false
+   });				
+	//(Object.freeze || Object)(Object.prototype);	
+	// window.open
+	var open =  new Proxy(function() {}, {
+	  apply: function(target, thisArg, argumentsList) {
+	    console.log('ui open DISABLED');
+	  }
+	});
+	Object.defineProperty(window,'open',{
+    configurable:false,
+    writable:false,
+    enumerable:false
+   });				
+	//(Object.freeze || Object)(Object.prototype);				
+}
+if(!permission_read_cookie && !permission_write_cookie){
+	Object.defineProperty(document, 'cookie', {
+	    get: function() {
+        	console.log('read cookie DISABLED');		        
+	    },
+	    set: function(val) {
+	    	console.log('set cookie DISABLED');
+	    }
+	});
+}
+else if(!permission_read_cookie || !permission_write_cookie){
+	if(!permission_read_cookie){
+		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
 		Object.defineProperty(document, 'cookie', {
-		    get: function() {
-	        	console.log('operation read cookie DISABLED');		        
-		    },
+    		get: function() {
+      		console.log('read cookie DISABLED');
+    		},		    
 		    set: function(val) {
-		    	console.log('operation set cookie DISABLED');
+	        	c.set.call(document,val)		        //
 		    }
 		});
 	}
-	else if(!permission_read_cookie || !permission_write_cookie){
-		if(!permission_read_cookie){
-			c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-			Object.defineProperty(document, 'cookie', {
-	    		get: function() {
-        		console.log('operation read cookie DISABLED');
-	    		},		    
-			    set: function(val) {
-		        	c.set.call(document,val)		        //
-			    }
-			});
-		}
-		if(!permission_write_cookie){
-			c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-			Object.defineProperty(document, 'cookie', {
-			    get: function() {
-		        	return c.get.call(document);
-			    },		    
-			    set: function(val) {
-		        	console.log('operation set cookie DISABLED \\n'+val);
-		        }
-		});
-		}
-	}
-	else{
+	if(!permission_write_cookie){
 		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-			Object.defineProperty(document, 'cookie', {
+		Object.defineProperty(document, 'cookie', {
 		    get: function() {
-		    	console.info('Cookie have been read;')
 	        	return c.get.call(document);
 		    },		    
 		    set: function(val) {
-		    	console.info('Cookie have been set to %s;',val)
-		    	c.set.call(document,val)
-        }
-		});
+	        	console.log('set cookie DISABLED ');
+	        }
+	});
 	}
-	
-	if(!permission_document_write){
-		document.write =  new Proxy(function() {}, {
-		  apply: function(target, thisArg, argumentsList) {					  			  	
-		    console.log('write on document DISABLED');
-		    console.log('trying to write:'+argumentsList);
-		    //return undefined;
-		  }
-		});
-		Object.defineProperty(Document.prototype,'write',{
-      configurable:false,
-      writable:false,
-      enumerable:false
-   	});				
-		//(Object.freeze || Object)(Object.prototype);
-	}
-	/*
-	Object.getOwnPropertyDescriptor(window,'localStorage');
-	Object.getOwnPropertyDescriptor(window,'sessionStorage');
-	gives:
-	configurable :true
-	true if and only if the type of this property descriptor may be 
-	changed and if the property may be deleted from the corresponding object.
-	writable: false
-	true if and only if the value associated with the property may be 
-	changed with an assignment operator.
-	So I can only delete
-	*/
-	//Window.localStorage e Window.sessionStorage
-	if(!permission_session_storage && !permission_local_storage){
-		// local storage
-		Object.defineProperty(window,'localStorage',{
-			value: null,
-      configurable:false,
-      writable:false,
-      enumerable:false
-     });				
-		//(Object.freeze || Object)(Object.prototype);
+}
+else{
+	c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+		Object.defineProperty(document, 'cookie', {
+	    get: function() {
+	    	console.info('Cookie have been read;')
+        	return c.get.call(document);
+	    },		    
+	    set: function(val) {
+	    	console.info('Cookie have been set to %s;',val)
+	    	c.set.call(document,val)
+      }
+	});
+}
 
-		//session storage
-		Object.defineProperty(window,'sessionStorage',{
-			value: null,
-      configurable:false,
-      writable:false,
-      enumerable:false
-     });				
-		//(Object.freeze || Object)(Object.prototype);
+if(!permission_document_write){
+	document.write =  new Proxy(function() {}, {
+	  apply: function(target, thisArg, argumentsList) {					  			  	
+	    console.log('write on document DISABLED');
+	    console.log('trying to write:'+argumentsList);
+	    //return undefined;
+	  }
+	});
+	Object.defineProperty(Document.prototype,'write',{
+    configurable:false,
+    writable:false,
+    enumerable:false
+ 	});				
+	//(Object.freeze || Object)(Object.prototype);
+}
+/*
+Object.getOwnPropertyDescriptor(window,'localStorage');
+Object.getOwnPropertyDescriptor(window,'sessionStorage');
+gives:
+configurable :true
+true if and only if the type of this property descriptor may be 
+changed and if the property may be deleted from the corresponding object.
+writable: false
+true if and only if the value associated with the property may be 
+changed with an assignment operator.
+So I can only delete
+*/
+//Window.localStorage e Window.sessionStorage
+if(!permission_session_storage && !permission_local_storage){
+	// local storage
+	Object.defineProperty(window,'localStorage',{
+		value: null,
+    configurable:false,
+    writable:false,
+    enumerable:false
+   });				
+	//(Object.freeze || Object)(Object.prototype);
+
+	//session storage
+	Object.defineProperty(window,'sessionStorage',{
+		value: null,
+    configurable:false,
+    writable:false,
+    enumerable:false
+   });				
+	//(Object.freeze || Object)(Object.prototype);
+}
+else{
+	if(!permission_local_storage){
+	Object.defineProperty(window,'localStorage',{
+		value: null,
+    configurable:false,
+    writable:false,
+    enumerable:false
+   });				
+	//(Object.freeze || Object)(Object.prototype);					
 	}
-	else{
-		if(!permission_local_storage){
-		Object.defineProperty(window,'localStorage',{
-			value: null,
-      configurable:false,
-      writable:false,
-      enumerable:false
-     });				
-		//(Object.freeze || Object)(Object.prototype);					
-		}
-		if(!permission_session_storage){
-		//session storage
-		Object.defineProperty(window,'sessionStorage',{
-			value: null,
-      configurable:false,
-      writable:false,
-      enumerable:false
-     });				
-		//(Object.freeze || Object)(Object.prototype);					
-		}
+	if(!permission_session_storage){
+	//session storage
+	Object.defineProperty(window,'sessionStorage',{
+		value: null,
+    configurable:false,
+    writable:false,
+    enumerable:false
+   });				
+	//(Object.freeze || Object)(Object.prototype);					
 	}
+}
 if(!permission_external_communication){
 	/* TODO 
 	devo fare in modo che non possa fare connessione all'esterno
