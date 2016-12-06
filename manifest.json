@@ -1,0 +1,46 @@
+{
+  "name": "JSWrapper",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description" : "Wrapping JavaScript by interposing a layer between browser and native methods.\nPreventing information disclosure by enforcing data confidentiality.\n",
+  "author" : "Andrea Baesso",
+  
+  "permissions": [
+    "tabs",
+    "pageCapture",
+    "<all_urls>",
+    "storage",
+    "background",
+    "webRequest",
+    "webRequestBlocking"
+  ],
+
+  "browser_action": 
+  {
+    "default_icon" : {
+      "16" : "images/icon.png"      
+    },
+    "default_title": "Make this page safe",
+    "default_popup": "html/popup.html"
+  },
+  "background":{ 
+    "scripts": [
+      "scripts/background.js"
+    ]
+  },
+  "content_scripts":
+  [
+    {
+      "matches": ["<all_urls>"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "js":  ["scripts/before.js"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "run_at": "document_end",
+      "all_frames": true,
+      "js":  ["scripts/after.js"]
+    }
+  ] 
+}
