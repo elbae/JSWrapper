@@ -1,6 +1,13 @@
 'use strict';
 window["random_value"]=true; 
 window["random_list"] = new Map();
+
+window["cookie_read_notice"] = true;
+window["cookie_write_notice"] = true;
+window["ui_notice"] = true;
+window["eval_notice"] = true;
+window["document_write_notice"] = true;
+
 // permission_ui
 Object.defineProperty(window,'permission_ui',{
       value:${policy_array[0]},
@@ -132,7 +139,10 @@ if(!permission_ui){
 	// windo.alert
 	var alert =  new Proxy(function() {}, {
 	  apply: function(target, thisArg, argumentsList) {
-	    console.log('ui alert DISABLED');
+	  	if(window["ui_notice"]){
+	  		window["ui_notice"] = false;
+	    	console.log('UI DISABLED');
+	  	}
 	  }
 	});
 	Object.defineProperty(window,'alert',{
@@ -144,7 +154,10 @@ if(!permission_ui){
 	// window.prompt
 	var prompt =  new Proxy(function() {}, {
 	  apply: function(target, thisArg, argumentsList) {
-	    console.log('ui prompt DISABLED');
+	  	if(window["ui_notice"]){
+	  		window["ui_notice"] = false;
+	    	console.log('UI DISABLED');
+	  	}
 	  }
 	});
 	Object.defineProperty(window,'prompt',{
@@ -156,7 +169,10 @@ if(!permission_ui){
 	// window.confirm
 	var confirm =  new Proxy(function() {}, {
 	  apply: function(target, thisArg, argumentsList) {
-	    console.log('ui confirm DISABLED');
+	  	if(window["ui_notice"]){
+	  		window["ui_notice"] = false;
+	    	console.log('UI DISABLED');
+	  	}
 	  }
 	});
 	Object.defineProperty(window,'confirm',{
@@ -168,7 +184,10 @@ if(!permission_ui){
 	// window.open
 	var open =  new Proxy(function() {}, {
 	  apply: function(target, thisArg, argumentsList) {
-	    console.log('ui open DISABLED');
+	  	if(window["ui_notice"]){
+	  		window["ui_notice"] = false;
+	    	console.log('UI DISABLED');
+	  	}
 	  }
 	});
 	Object.defineProperty(window,'open',{
@@ -181,22 +200,31 @@ if(!permission_ui){
 if(!permission_read_cookie && !permission_write_cookie){
 	Object.defineProperty(document, 'cookie', {
 	    get: function() {
-        	console.log('read cookie DISABLED');		        
+	    	if(window["cookie_read_notice"]){
+	    		window["cookie_read_notice"]=false;
+        	console.log('READ COOKIE DISABLED');		        
+	    	}
 	    },
 	    set: function(val) {
-	    	console.log('set cookie DISABLED');
+	    	if(window["cookie_write_notice"]){
+	    		window["cookie_write_notice"]=false;
+        	console.log('WRITE COOKIE DISABLED');		        
+	    	}
 	    }
 	});
 }
 else if(!permission_read_cookie || !permission_write_cookie){
 	if(!permission_read_cookie){
-		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
 		Object.defineProperty(document, 'cookie', {
     		get: function() {
-      		console.log('read cookie DISABLED');
+		    	if(window["cookie_read_notice"]){
+		    		window["cookie_read_notice"]=false;
+	        	console.log('READ COOKIE DISABLED');		        
+		    	}
     		},		    
 		    set: function(val) {
-	        	c.set.call(document,val)		        //
+		    	c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+	        c.set.call(document,val)		        //
 		    }
 		});
 	}
@@ -204,11 +232,15 @@ else if(!permission_read_cookie || !permission_write_cookie){
 		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
 		Object.defineProperty(document, 'cookie', {
 		    get: function() {
+		    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
 	        	return c.get.call(document);
-		    },		    
-		    set: function(val) {
-	        	console.log('set cookie DISABLED ');
-	        }
+		    },	
+		    set: function(value){
+		    	if(window["cookie_write_notice"]){
+		    		window["cookie_write_notice"]=false;
+	        	console.log('WRITE COOKIE DISABLED');		        
+		    	}
+	    	}
 	});
 	}
 }
@@ -216,11 +248,13 @@ else{
 	c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
 		Object.defineProperty(document, 'cookie', {
 	    get: function() {
-	    	console.info('Cookie have been read;')
-        	return c.get.call(document);
+	    	//console.info('Cookie have been read;')
+    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+      	return c.get.call(document);
 	    },		    
 	    set: function(val) {
-	    	console.info('Cookie have been set to %s;',val)
+	    	c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+	    	//console.info('Cookie have been set to %s;',val)
 	    	c.set.call(document,val)
       }
 	});
@@ -229,8 +263,10 @@ else{
 if(!permission_document_write){
 	document.write =  new Proxy(function() {}, {
 	  apply: function(target, thisArg, argumentsList) {					  			  	
-	    console.log('write on document DISABLED');
-	    console.log('trying to write:'+argumentsList);
+	  	if(window["document_write_notice"]){
+	  		window["document_write_notice"]=false;
+	    	console.log('DOCUMENT WRITE DISABLED');		        
+	  	}
 	    //return undefined;
 	  }
 	});
@@ -400,7 +436,10 @@ Per ogni elemento di Notification.prototype devo annullare
 if(!permission_eval){
 	window.eval = new Proxy(function() {}, {
 	  apply: function(target, thisArg, argumentsList) {			  	
-	    console.log('eval DISABLED');
+    	if(window["evaal_notice"]){
+    		window["eval_notice"]=false;
+      	console.log('EVAL DISABLED');		        
+    	}
 	  }
 	});
   Object.defineProperty(window, 'eval', {
@@ -413,7 +452,7 @@ if(!permission_eval){
 
 if(!permission_change_location_href){
 	//location writable : true, configurable : false	
-	console.info('location can still be accessed because\\nwritable:true\\nconfigurable:false');
+	//console.info('location can still be accessed because\\nwritable:true\\nconfigurable:false');
 }
 
 //document create element iframe
@@ -449,6 +488,7 @@ if(hide_document_prototype){
 //console.log('window.__proto__ '+window.__proto__);
 
 if(false){
+	// TODO - PERCHÈ HO SCRITTO QUESTA COSA?
     let old_addEventListener = EventTarget.prototype.addEventListener;
     let stopConnection = function(){
     	console.log('Before handler');

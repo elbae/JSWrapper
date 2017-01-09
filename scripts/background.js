@@ -126,7 +126,7 @@ chrome.webRequest.onBeforeRequest.addListener(
           var tstring ="";
           var l;
           for(l in lista){
-            if(l.toString() !== "password")
+            if( !((l.toString()).includes("password")) )
               tstring+=l.toString()+": "+lista[l]+"\n";
           }
           console.log(tstring);
