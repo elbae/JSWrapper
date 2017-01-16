@@ -1,6 +1,24 @@
 'use strict';
-var d = new Date();
-var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
+function getTime(){
+  var d = new Date();
+  var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
+  return time;
+}
+window['message_enable']=true;
+/* immediately asks for enabling connection*/
+try{
+	console.log(`[After.js] asks for enable external requests at ${getTime()}`);
+	chrome.runtime.sendMessage({action:"background_enable_ext_comm"}, function(){
+	  if(window['message_enable']){
+	    window['message_enable']=false;
+	    
+	  } //chrome.runtime.connect() called from a webpage must specify an Extension ID
+	});
+}
+catch(e){
+	alert('Error on chrome.runtime.sendMessage - {action:"background_enable_ext_comm"} ');
+	console.error(e);
+}
 var debug=true;
 if(!debug){
 	console.log = function(text){
@@ -16,7 +34,7 @@ if(!debug){
 		return;
 	}
 }
-console.info(`[Before.js] Start : mm:ss:mmm ${time}`);
+console.info(`[Before.js] Start : mm:ss:mmm ${getTime()}`);
 /*
 Setting PostMessage listeners
 */
@@ -41,19 +59,44 @@ If the policies are not defined it asks for them to the background
 */
 
 try{	
-
+	
+	/* modifica 15 gennaio 
+		anzichè inviare un messaggio al background per richiedere le policies e aspettare queste in risposta posso direttamente caricarle
+		commento la parte dove mando il messaggio e la cambio con quella dove carico dallo store	
+	*/
+	/* EDIT COMMENTED */
+	/*
 	console.info(`[Before.js] asking for policies`);
 	chrome.runtime.sendMessage({action:"background_load"}, 
 		function(response) {
-			var policy_array;
+	*/
+	/* EDIT NEW PART INSTEAD OF THE ONE ABOVE */
+	chrome.storage.sync.get('policies', function(result) {
+		var policy_array;
+		if(result.policies === undefined){
+			policy_array = new Array(10);
+			policy_array = [true, true, true, true, true, true, true, true, true, true];
+			console.info('[Before.js] Policies not found, creating');
+		}
+    else{
+      policy_array = JSON.parse(result.policies);
+      console.info('[Before.js] Policies loaded : '+result.policies);
+      console.info(`[Before.js] on %c${document.domain}`,"color: green");
+    }
+    
 			var myhead;
 			var my_script;
+			/*
 			console.info(`[Before.js] receiving : ${response.policies}`);
 			policy_array = JSON.parse(response.policies);
+			*/
 
 			myhead = document.createElement('head');
 			(document.head || document.documentElement).appendChild(myhead);
 			my_script = document.createElement('script');
+			my_script.setAttribute("type","text/javascript");
+
+			// type="text/javascript"
 			my_script.innerHTML = `
 'use strict';
 window["random_value"]=true; 
@@ -64,6 +107,7 @@ window["cookie_write_notice"] = true;
 window["ui_notice"] = true;
 window["eval_notice"] = true;
 window["document_write_notice"] = true;
+
 
 // permission_ui
 Object.defineProperty(window,'permission_ui',{
@@ -588,14 +632,15 @@ Object.defineProperty(EventTarget.prototype, 'addEventListener', {
 });`;
 			(document.head||document.documentElement).appendChild(my_script);
 			my_script.parentNode.removeChild(my_script);
-		}
+		
+	/* EDITED
 	); 	
+	*/
+});
 }
 catch(error){
 	console.error(`[Before.js] error : injection`);
 	console.error(error);
 }
 
-var d = new Date();
-var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
-console.info(`[Before.js] End : mm:ss:mmm ${time}`);
+console.info(`[Before.js] End : mm:ss:mmm ${getTime()}`);

@@ -2,6 +2,7 @@
 var d = new Date();
 var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
 var debug=true;
+window['message_disable'] = true;
 if(!debug){
   console.log = function(text){
     return;
@@ -17,10 +18,9 @@ if(!debug){
   }
 }
 console.info(`[After.js] Start : mm:ss:mmm ${time}`);
+console.info(`[After.js] on %c${document.domain}`,"color: green");
 //at first i want to enable every connection
-chrome.runtime.sendMessage({action:"background_enable_ext_comm"}, function(){
-   console.log(`[After.js] asks for enable external requests`);
-});
+
 //then i want to add the listener
 
 /*
@@ -52,16 +52,20 @@ function _sendGetData(){
 }*/
 function handler_normal(){
   chrome.runtime.sendMessage({action:"background_disable_ext_comm"}, function(){
-    console.log(`[After.js] asks for disable external requests`);
+    if(window['message_disable']){
+      window['message_disable']=false;
+      console.log(`[After.js] asks for disable external requests`);
+    }
   });             
-  console.log('After handler');
 }
 function handler_check(){
   if(this.type === "password"){
     chrome.runtime.sendMessage({action:"background_disable_ext_comm"}, function(){
-      console.log(`[After.js] asks for disable external requests`);
+      if(window['message_disable']){
+        window['message_enable']=false;
+        console.log(`[After.js] asks for disable external requests`);
+      }
     });             
-    console.log('After handler');
   }
 }
 function secureInputTags(){

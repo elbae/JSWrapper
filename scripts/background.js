@@ -11,8 +11,43 @@ Is loaded as a process part of the extension
 
 */
 'use strict';
-var d = new Date();
-var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
+function getTime(){
+  var d = new Date();
+  var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
+  return time;
+}
+//check urls in order to enable or disable connection
+function checkUrls(url, req){
+    //same url
+    if(req.url.startsWith("chrome-extension://")){
+      console.log(req);
+      return true
+    }
+    else{
+      var splitted_url =url.split('/');
+      var splitted_req_url = (req.url).split('/');
+      var first_url = splitted_url[0]+"//"+splitted_url[2]
+      var second_url = splitted_req_url[0]+'//'+splitted_req_url[2]
+      if(first_url === second_url){
+        if(req.method === "POST"){
+          console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} \nTIME ${getTime()}`);
+          return true;
+        }
+        else{
+          console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} \nTIME ${getTime()}`,"color: red");
+          return false;
+        }
+      }
+      else{
+        console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} \nTIME ${getTime()}`,"color: red");
+        return false;
+      }
+    }
+    console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} \nTIME ${getTime()}`,"color: red");
+    return false;
+    //
+}
+//
 var debug=true;
 if(!debug){
   console.log = function(text){
@@ -28,7 +63,7 @@ if(!debug){
     return;
   }
 }
-console.info(`[Background.js] Start : mm:ss:mmm ${time}`);
+console.info(`[Background.js] Start : mm:ss:mmm ${getTime()}`);
 var ext_list = new Array();
 var ext_comm = true;
 
@@ -116,7 +151,20 @@ catch(e){
 
 try{
 chrome.webRequest.onBeforeRequest.addListener(
-  function(info) {
+  function(info){ 
+    //console.info(`${info.method} ENABLED- ${info.type} : ${info.url}\n`);
+    if(!ext_comm){
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+          if(tabs[0]!== undefined){
+            return{cancel:(!checkUrls(tabs[0].url,info))}
+          }
+          else{
+            return{cancel:true}
+
+          }
+      });
+    }
+    /*
     if(ext_comm===false){ //external comm variable
       //actual location
       if(info.method === "POST" ){
@@ -157,6 +205,7 @@ chrome.webRequest.onBeforeRequest.addListener(
       console.log(`[${info.method}] enabled: ${info.url} `);
     }
     return {cancel:false};
+    */
   },
   {urls: ["<all_urls>"]},
   ["blocking","requestBody"]);
@@ -184,8 +233,9 @@ try{
               console.log('background_disable_ext_comm');
             }
             if(request.action === "background_enable_ext_comm"){
+
               ext_comm = true;
-              console.log('background_enable_ext_comm');
+              console.log(`background_enable_ext_comm at time ${getTime()}`);
             }            
             if(request.action === "background_load"){
               console.log(`[Background.js] Request : ${request.action}
@@ -223,6 +273,5 @@ catch(error){
 }
 
 
-var d = new Date();
-var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
-console.info(`[Background.js] End : mm:ss:mmm ${time}`);
+
+console.info(`[Background.js] End : mm:ss:mmm ${getTime()}`);

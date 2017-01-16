@@ -8,6 +8,7 @@ window["ui_notice"] = true;
 window["eval_notice"] = true;
 window["document_write_notice"] = true;
 
+
 // permission_ui
 Object.defineProperty(window,'permission_ui',{
       value:${policy_array[0]},
