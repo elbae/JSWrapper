@@ -1,3 +1,4 @@
+
 'use strict';
 window["random_value"]=true; 
 window["random_list"] = new Map();
@@ -203,13 +204,13 @@ if(!permission_read_cookie && !permission_write_cookie){
 	    get: function() {
 	    	if(window["cookie_read_notice"]){
 	    		window["cookie_read_notice"]=false;
-        	console.log('READ COOKIE DISABLED');		        
+        	console.log('READ COOKIE DISABLED for '+location );		        
 	    	}
 	    },
 	    set: function(val) {
 	    	if(window["cookie_write_notice"]){
 	    		window["cookie_write_notice"]=false;
-        	console.log('WRITE COOKIE DISABLED');		        
+        	console.log('WRITE COOKIE DISABLED for '+location );	
 	    	}
 	    }
 	});
@@ -220,7 +221,7 @@ else if(!permission_read_cookie || !permission_write_cookie){
     		get: function() {
 		    	if(window["cookie_read_notice"]){
 		    		window["cookie_read_notice"]=false;
-	        	console.log('READ COOKIE DISABLED');		        
+	        	console.log('READ COOKIE DISABLED for '+location );	
 		    	}
     		},		    
 		    set: function(val) {
@@ -239,7 +240,7 @@ else if(!permission_read_cookie || !permission_write_cookie){
 		    set: function(value){
 		    	if(window["cookie_write_notice"]){
 		    		window["cookie_write_notice"]=false;
-	        	console.log('WRITE COOKIE DISABLED');		        
+	        	console.log('WRITE COOKIE DISABLED for '+location );	
 		    	}
 	    	}
 	});
@@ -266,7 +267,7 @@ if(!permission_document_write){
 	  apply: function(target, thisArg, argumentsList) {					  			  	
 	  	if(window["document_write_notice"]){
 	  		window["document_write_notice"]=false;
-	    	console.log('DOCUMENT WRITE DISABLED');		        
+	    	console.log('DOCUMENT WRITE DISABLED for '+location );	
 	  	}
 	    //return undefined;
 	  }
@@ -437,9 +438,9 @@ Per ogni elemento di Notification.prototype devo annullare
 if(!permission_eval){
 	window.eval = new Proxy(function() {}, {
 	  apply: function(target, thisArg, argumentsList) {			  	
-    	if(window["evaal_notice"]){
+    	if(window["eval_notice"]){
     		window["eval_notice"]=false;
-      	console.log('EVAL DISABLED');		        
+      	console.log('EVAL DISABLED for '+location );	
     	}
 	  }
 	});
@@ -450,7 +451,64 @@ if(!permission_eval){
 	});
 	//(Object.freeze || Object)(Object.prototype);				
 }
+// due to twitter modification of console.log must wrap it
+if(true){
+	let old_log = console.log;
+	let old_error = console.error;
+	let old_info = console.info;
 
+	//first is console.log
+	console.log('before log');
+	/*console.log = new Proxy(function() {}, {
+	  apply: function(target, thisArg, argumentsList) {	
+	  	var count = 0;
+	  	for(count = 0; count < argumentsList.length; count++);{
+	  		old_log.call(window,argumentsList)[0];
+	  	}
+	  	//var result = old_log.apply(target,thisArg,argumentsList);
+	  	//return result;
+	  }
+	});*/
+  Object.defineProperty(window.console, 'log', {
+	  configurable:false,
+	  writable:false,
+	  enumerable:false
+	});
+	console.log('after log',1);
+	// second console.error
+	/*
+	console.error = new Proxy(function() {}, {
+	  apply: function(target, thisArg, argumentsList) {	
+	  	var result = old_error.call(thisArg,argumentsList);
+	  	return result;
+	  }
+	});*/
+  Object.defineProperty(window.console, 'error', {
+	  configurable:false,
+	  writable:false,
+	  enumerable:false
+	});	
+	// third console.info
+	/*
+	console.info = new Proxy(function() {}, {
+	  apply: function(target, thisArg, argumentsList) {	
+	  	var result = old_info.call(thisArg,argumentsList);
+	  	return result;
+	  }
+	});*/
+  Object.defineProperty(window.console, 'info', {
+	  configurable:false,
+	  writable:false,
+	  enumerable:false
+	});
+	// last lock console
+	Object.defineProperty(window, 'console', {
+	  configurable:false,
+	  writable:false,
+	  enumerable:false
+	});
+	//(Object.freeze || Object)(Object.prototype);				
+}
 if(!permission_change_location_href){
 	//location writable : true, configurable : false	
 	//console.info('location can still be accessed because\\nwritable:true\\nconfigurable:false');

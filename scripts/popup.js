@@ -10,7 +10,29 @@ PopupController.prototype = {
   button_: null,
   check_ui: null,
   setValues: function(){ 
-    /* i want to load from the background.js */
+    /* i want to load from the storage */
+    chrome.storage.sync.get('policies', function(result) {
+      if(result.policies !== undefined){
+        var ext_list = JSON.parse(result.policies);
+        //ok, loading into the extension
+        var input_list = document.getElementsByTagName('input');
+        var i=0;
+        for(i=0;i<ext_list.length && i<input_list.length;i++){
+            if(ext_list[i]===true){
+              input_list[i].checked=true;
+            }
+            else{
+              input_list[i].checked=false;
+            }
+        }
+      }
+      else{
+        // error, send error message
+        console.error('errore');
+        chrome.runtime.sendMessage({action: "generic_error", store_load : result},function(response){});
+      }
+    });
+    /*
     chrome.runtime.sendMessage({action: "background_load"},
       function(response) {
         //response.policies is a string
@@ -26,9 +48,10 @@ PopupController.prototype = {
           }
         }
       }
-    );
+    );*/
+    // saving data in the storage with chrome.storage.sync
   },
-  saveValues_ : function(){
+  saveValues : function(){
     var input_list = document.getElementsByTagName('input');
     var value_array = new Array();
     var i=0;
@@ -36,7 +59,9 @@ PopupController.prototype = {
       value_array[i]=input_list[i].checked;
     }
     var ext_list = JSON.stringify(value_array);
-    chrome.runtime.sendMessage({action: "background_set",policies:ext_list});
+    // saving into the storage
+    chrome.storage.sync.set({'policies': ext_list},function(){});
+    //chrome.runtime.sendMessage({action: "background_set",policies:ext_list});
     this.sendReloadMessage();    
   },
   addCheckListeners: function () {
@@ -44,7 +69,7 @@ PopupController.prototype = {
     var i=0;
     var input_list = document.getElementsByTagName('input');
     for(i=0;i<input_list.length;i++){
-      input_list[i].addEventListener('change',this.saveValues_.bind(this));  
+      input_list[i].addEventListener('change',this.saveValues.bind(this));  
     }
   },
   sendReloadMessage:function(){
@@ -57,7 +82,7 @@ PopupController.prototype = {
   handleClick_: function () {    
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
-        window.close();
+        //window.close();
     });
   }
 };

@@ -1,3 +1,9 @@
+/* @TODO
+1) quando blocco una connessione, mostro nella console e salvo i dati con api storage 
+2) da popup metto un listener sulla parte di storage che contiene i log, mostro il numero (?? come -> guardare codice sorgente di adblock+ ??)
+3) devo dare la possibilità all'utente di scegliere se un url tra quelli bloccati può essere messo in whitelist (?? da valutare)
+4) non posso usare storage sync perchè ho il limite nella dimensione a 1mB(?)
+ */
 /* 
 /scripts/background.js
 Is loaded as a process part of the extension
@@ -10,6 +16,7 @@ Is loaded as a process part of the extension
 - receive requests for policies modification save them in both storages
 
 */
+
 'use strict';
 function getTime(){
   var d = new Date();
@@ -47,6 +54,8 @@ function checkUrls(url, req){
     return false;
     //
 }
+//
+//var a = require('backbone-before.js');
 //
 var debug=true;
 if(!debug){
@@ -221,6 +230,11 @@ Listening for requests: get/set
 try{
   chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
+      if(request.action == "generic_error"){
+        console.error(`[ERROR] : `);
+        console.error(request);
+        console.error(sender);
+      }
       // check for content script tab
       if(sender.hasOwnProperty('tab')){
         // check for active tab property
@@ -233,19 +247,23 @@ try{
               console.log('background_disable_ext_comm');
             }
             if(request.action === "background_enable_ext_comm"){
-
               ext_comm = true;
               console.log(`background_enable_ext_comm at time ${getTime()}`);
-            }            
-            if(request.action === "background_load"){
+            }
+            else{
+              console.error(`What is ${request.action}?`);
+            }           
+            /*if(request.action === "background_load"){
               console.log(`[Background.js] Request : ${request.action}
                   Reply: ${ext_list}`);
               sendResponse({policies: JSON.stringify(ext_list)});
-            }
+            }*/
           }
         }
       }
       //request from the popup
+      /* not useful anymore */
+      /*
       if(sender.url.endsWith("popup.html",sender.url.length)){
         // check for save policies request
         if(request.action === "background_set"){
@@ -264,7 +282,7 @@ try{
                   Reply: ext_list`);
           sendResponse({policies: JSON.stringify(ext_list)});
         }
-      }
+      }*/
   });
 }
 catch(error){
