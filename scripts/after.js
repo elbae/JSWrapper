@@ -1,24 +1,9 @@
 'use strict';
 var d = new Date();
 var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
-var debug=true;
 window['message_disable'] = true;
-if(!debug){
-  console.log = function(text){
-    return;
-  }
-  console.info = function(text){
-    return;
-  }
-  console.error = function(text){
-    return;
-  }
-  console.war = function(text){
-    return;
-  }
-}
-console.info(`[After.js] Start : mm:ss:mmm ${time}`);
-console.info(`[After.js] on %c${document.domain}`,"color: green");
+
+console.log(`%c[A]%c Start : mm:ss:mmm ${time} on %c${document.domain}`,'color:Chocolate','color:black',"color: green");
 //at first i want to enable every connection
 
 //then i want to add the listener
@@ -51,19 +36,19 @@ function _sendGetData(){
   }
 }*/
 function handler_normal(){
-  chrome.runtime.sendMessage({action:"background_disable_ext_comm"}, function(){
+  chrome.runtime.sendMessage({action:"background_disable_ext_comm", domain:document.domain}, function(){
     if(window['message_disable']){
       window['message_disable']=false;
-      console.log(`[After.js] asks for disable external requests`);
+      console.log(`%c[A]%c asks for disable external requests`,'color:Chocolate','color:black');
     }
   });             
 }
 function handler_check(){
   if(this.type === "password"){
-    chrome.runtime.sendMessage({action:"background_disable_ext_comm"}, function(){
+    chrome.runtime.sendMessage({action:"background_disable_ext_comm",domain: document.domain}, function(){
       if(window['message_disable']){
         window['message_enable']=false;
-        console.log(`[After.js] asks for disable external requests`);
+        console.log(`%c[A]%c asks for disable external requests`,'color:Chocolate','color:black');
       }
     });             
   }
@@ -99,4 +84,4 @@ secureInputTags();
 window.setInterval(function(){secureInputTags();}, 250);
 var d = new Date();
 var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
-console.info(`[After.js] End : mm:ss:mmm ${time}`);
+console.log(`%c[A]%c End : mm:ss:mmm ${time} on %c${document.domain}`,'color:Chocolate','color:black',"color: green");

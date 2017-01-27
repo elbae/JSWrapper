@@ -244,11 +244,11 @@ try{
             // check for get policies request
             if(request.action === "background_disable_ext_comm"){
               ext_comm = false;
-              console.log('background_disable_ext_comm');
+              console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
             }
-            if(request.action === "background_enable_ext_comm"){
+            else if(request.action === "background_enable_ext_comm"){
               ext_comm = true;
-              console.log(`background_enable_ext_comm at time ${getTime()}`);
+              console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
             }
             else{
               console.error(`What is ${request.action}?`);
