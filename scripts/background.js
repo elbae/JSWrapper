@@ -95,6 +95,7 @@ Getting the policies from the chrome.storage.sync and saving them in the
 local storage.
 If not found, creating them and saving in the local Storage
 */
+
 try{
   chrome.storage.sync.get('policies', function(result) {
     if(result.policies !== undefined){
@@ -108,8 +109,7 @@ try{
         for(i=0;i<10;i++){
           arr[i]=true;
         }     
-        ext_list = arr;
-        
+        ext_list = arr;        
         chrome.storage.sync.set({'policies': JSON.stringify(ext_list)}, 
             function() {
               console.info('[Background.js] data saved');
@@ -122,6 +122,7 @@ catch(error){
   console.error('[Background.js] Policies error: loading/creation ');
   console.error(error);
 }
+
 /* TEST BLOCKING REQUESTS WITH onResponseStarted */
 /*
 try{
@@ -230,6 +231,7 @@ Listening for requests: get/set
 try{
   chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
+      //console.log(request);
       if(request.action == "generic_error"){
         console.error(`[ERROR] : `);
         console.error(request);
@@ -249,15 +251,19 @@ try{
             else if(request.action === "background_enable_ext_comm"){
               ext_comm = true;
               console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
-            }
-            else{
-              console.error(`What is ${request.action}?`);
-            }           
-            /*if(request.action === "background_load"){
+            }          
+            else if(request.action === "background_load"){
               console.log(`[Background.js] Request : ${request.action}
                   Reply: ${ext_list}`);
               sendResponse({policies: JSON.stringify(ext_list)});
-            }*/
+            }
+            else if(request.action === "background_set"){
+              ext_list = JSON.par(request.policies);
+              console.log(`[Background.js] Policies changed to :  Reply: ${ext_list}`);
+            }
+            else{
+              console.error(`What is ${request.action}?`);
+            } 
           }
         }
       }

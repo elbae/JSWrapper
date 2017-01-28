@@ -3,7 +3,6 @@
 	global variables
 */
 var policy_array; // An array of 10 elements used for the policies
-var mustReaload;	// Boolean value used to realod the page
 var custom_head;	// Node element for the custom head
 var custom_script;// Script element for the custom script
 var count=0;			// Int counter variable for loops
@@ -39,14 +38,29 @@ catch(e){
 	alert('Error on chrome.runtime.sendMessage - {action:"background_enable_ext_comm"} ');
 	console.error(e);
 }
+/* 
+	Asks for policies to background
+*/
+try{
+	console.log(`%c[B] %c asks for enable external requests at ${getTime()}`,'color:purple','color:black');
+	chrome.runtime.sendMessage({action:"background_load", domain:document.domain}, function(response){
+		policy_array = JSON.parse(response.policies);
+		includeScripts();
+
+	});
+}
+catch(e){
+	alert('Error on chrome.runtime.sendMessage - {action:"background_load"} ');
+	console.error(e);
+}
 /*
 	Setting message listener
 */
 try{
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		if(request.action === 'before_reload'){
-			mustReaload = true;
-			getNReload();
+			window.location.reload();
+			//getNReload();
 		}	    
 	});
 }
@@ -63,41 +77,45 @@ var createCustom = function(){
 	for(count=0;count<10;count++){
 		policy_array[count]=false;
 	}
-	mustReaload=true;
 }
 /*
 	Function which loads from the chrome.storage.sync and save into the localStorage
 */
 var getNReload = function(){
-	if(mustReaload){
-		try{	
-			chrome.storage.sync.get('policies', function(result) {		
-				console.log('%c[B] %c Policies waiting at %s','color:purple','color:black',getTime());
-				if(result.policies === undefined){
-					policy_array = new Array(10);//policy_array = [true, true, true, true, true, true, true, true, true, true];
-					policy_array = [false, false, false, false, false, false,false, false, false, false];
-					console.log('%c[B] %c Policies created','color:purple','color:black');
-				}
-		    else{
-		      policy_array = JSON.parse(result.policies);
-		      console.log('%c[B] %c Policies loaded on %c%s %c at %s','color:purple','color:black','color:green',document.domain,'color:black',getTime());
-		    } 
-		    localStorage.setItem('policies',JSON.stringify(policy_array));
-				window.location.reload();
-		  });
-		  mustReaload=false;
-		  window.location.reload();
-		}
-		catch(error){
-			console.error(`%c[B] %c error : injection`,'color:purple','color:black');
-			console.error(error);
-		}
+	try{	
+		var pre = JSON.parse(localStorage.getItem('policies'));
+		var post;
+		chrome.storage.sync.get('policies', function(result) {		
+			console.log('%c[B] %c Policies waiting at %s','color:purple','color:black',getTime());
+			if(result.policies === undefined){
+				chrome.storage.sync.set('policies',JSON.stringify(pre),function(){});
+				console.log('%c[B] %c Policies created','color:purple','color:black');
+			}
+	    else{
+	      policy_array = JSON.parse(result.policies);
+	      console.log('%c[B] %c Policies loaded on %c%s %c at %s','color:purple','color:black','color:green',document.domain,'color:black',getTime());
+	    } 
+	    for(count=0;count<10;count++){
+	    	if(pre[count] !== policy_array[count]){
+	    		localStorage.setItem('policies',JSON.stringify(policy_array));
+	    		window.location.reload();
+	    	}
+	    }
+	    localStorage.setItem('policies',JSON.stringify(policy_array));
+			
+	  });
+	  
+	}
+	catch(error){
+		console.error(`%c[B] %c error : injection`,'color:purple','color:black');
+		console.error(error);
 	}
 }
 /*
 	Functions which creates the custom script tag and place it under the head
 */
 var includeScripts = function () {
+		console.log('%c[B] %c Policies used %s','color:purple','color:black',JSON.stringify(policy_array));
 		custom_script.innerHTML = `
 			'use strict';
 			window["random_value"]=true; 
@@ -299,7 +317,8 @@ var includeScripts = function () {
 			   });				
 				//(Object.freeze || Object)(Object.prototype);				
 			}
-			if(!permission_read_cookie && !permission_write_cookie){
+			// false - false
+			if( (permission_read_cookie === false) && (permission_write_cookie == false)){
 				Object.defineProperty(document, 'cookie', {
 				    get: function() {
 				    	if(window["cookie_read_notice"]){
@@ -310,57 +329,87 @@ var includeScripts = function () {
 				    set: function(val) {
 				    	if(window["cookie_write_notice"]){
 				    		window["cookie_write_notice"]=false;
-			        	console.log('WRITE COOKIE DISABLED for '+location );	
+			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 				    	}
 				    }
 				});
-			}
-			else if(!permission_read_cookie || !permission_write_cookie){
-				if(!permission_read_cookie){
-					Object.defineProperty(document, 'cookie', {
-			    		get: function() {
-					    	if(window["cookie_read_notice"]){
-					    		window["cookie_read_notice"]=false;
-				        	console.log('READ COOKIE DISABLED for '+location );	
-					    	}
-			    		},		    
-					    set: function(val) {
-					    	c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-				        c.set.call(document,val)		        //
-					    }
-					});
-				}
-				if(!permission_write_cookie){
-					c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-					Object.defineProperty(document, 'cookie', {
-					    get: function() {
-					    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-				        	return c.get.call(document);
-					    },	
-					    set: function(value){
-					    	if(window["cookie_write_notice"]){
-					    		window["cookie_write_notice"]=false;
-				        	console.log('WRITE COOKIE DISABLED for '+location );	
-					    	}
-				    	}
-				});
-				}
-			}
-			else{
-				c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-					Object.defineProperty(document, 'cookie', {
+				/*Object.defineProperty(Document.prototype, 'cookie', {
 				    get: function() {
-				    	//console.info('Cookie have been read;')
-			    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-			      	return c.get.call(document);
-				    },		    
+				    	if(window["cookie_read_notice"]){
+				    		window["cookie_read_notice"]=false;
+			        	console.log('READ COOKIE DISABLED for '+location );		        
+				    	}
+				    },
 				    set: function(val) {
-				    	c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-				    	//console.info('Cookie have been set to %s;',val)
-				    	c.set.call(document,val)
-			      }
+				    	if(window["cookie_write_notice"]){
+				    		window["cookie_write_notice"]=false;
+			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
+				    	}
+				    }
+				});*/
+			} // false - true
+			else if( (permission_read_cookie === false) && (permission_write_cookie == true)){
+				Object.defineProperty(document, 'cookie', {
+				    get: function() {
+				    	if(window["cookie_read_notice"]){
+				    		window["cookie_read_notice"]=false;
+			        	console.log('READ COOKIE DISABLED for '+location );		        
+				    	}
+				    },
+				    set: function(val) {
+				    	if(window["cookie_write_notice"]){
+				    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+				        c.set.call(document,val)
+				    	}
+				    }
+				});		
+				/*
+				Object.defineProperty(Document.prototype, 'cookie', {
+				    get: function() {
+				    	if(window["cookie_read_notice"]){
+				    		window["cookie_read_notice"]=false;
+			        	console.log('READ COOKIE DISABLED for '+location );		        
+				    	}
+				    },
+				    set: function(val) {
+				    	if(window["cookie_write_notice"]){
+				    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+				        c.set.call(document,val)
+				    	}
+				    }
+				});				*/	
+			} // true - false
+			else if( (permission_read_cookie === true) && (permission_write_cookie == false)){
+				Object.defineProperty(document, 'cookie', {
+				    get: function() {
+			    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+		        	return c.get.call(document);				    	
+				    },
+				    set: function(val) {
+				    	if(window["cookie_write_notice"]){
+				    		window["cookie_write_notice"]=false;
+			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
+				    	}
+				    }
 				});
+				/*
+				Object.defineProperty(Document.prototype, 'cookie', {
+				    get: function() {
+			    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+		        	return c.get.call(document);				    	
+				    },
+				    set: function(val) {
+				    	if(window["cookie_write_notice"]){
+				    		window["cookie_write_notice"]=false;
+			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
+				    	}
+				    }
+				});				*/			
+			}	// true - true
+			else{
+
 			}
+
 
 			if(!permission_document_write){
 				document.write =  new Proxy(function() {}, {
@@ -600,6 +649,7 @@ var includeScripts = function () {
 				  enumerable:false
 				});
 				// last lock console
+				
 				Object.defineProperty(window, 'console', {
 				  configurable:false,
 				  writable:false,
@@ -685,7 +735,8 @@ var includeScripts = function () {
 			  configurable:false,
 			  writable:false,
 			  enumerable:false
-			});`;
+			});
+`;
 			/*
 			var test = document.createElement('img');
 			console.log(document);
@@ -701,6 +752,7 @@ console.log(`%c[B] %c End : mm:ss:mmm ${getTime()}`,'color:purple','color:black'
 /* 
 	Main part of the contentScript
 */
+/*
 try{
 	retrieved = localStorage.getItem('policies');
 	if(retrieved!==null){
@@ -710,8 +762,7 @@ try{
 				createCustom();
 				break;
 			}
-		}
-		mustReaload=false;
+		}		
 	}
 	else{
 		createCustom();
@@ -721,17 +772,23 @@ catch(error){
 	console.error(error);
 	createCustom();
 }
-
-
-/* 
-	Main part of the execution
-*/
 includeScripts();
 getNReload();
-
-
+*/
 
 
 
 
 console.log(`%c[B] %c End without policies: mm:ss:mmm ${getTime()}`,'color:purple','color:black');
+
+/*
+TODO MODIFICHE
+- come faccio ora risolvo il problema dello script caricato nell'head della pagina 
+che può rompere quello che wrappo
+
+posso fare che il primo colpo 
+
+devo ritornare a come prima che carico lo script nell'header
+mando messaggio e aspetto la risposta
+quando ho la risposta popolo il tag script
+*/

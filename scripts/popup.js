@@ -61,8 +61,8 @@ PopupController.prototype = {
     var ext_list = JSON.stringify(value_array);
     // saving into the storage
     chrome.storage.sync.set({'policies': ext_list},function(){});
-    //chrome.runtime.sendMessage({action: "background_set",policies:ext_list});
-    this.sendReloadMessage();    
+    chrome.runtime.sendMessage({action: "background_set",policies:ext_list});
+    setTimeout(this.sendReloadMessage(),500);   
   },
   addCheckListeners: function () {
     this.button_.addEventListener('click', this.handleClick_.bind(this));
