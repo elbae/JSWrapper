@@ -118,39 +118,6 @@ chrome.storage.sync.get('policies', function(result) {
   }
 }); 
 
-/* TEST BLOCKING REQUESTS WITH onResponseStarted */
-/*
-try{
-  chrome.webRequest.onResponseStarted.addListener(
-    function(info){
-      console.info('onResponseStarted');
-      console.log(info);
-      return{cancel:false};
-    },{urls: ["<all_urls>"]});         //  optional array of strings
-}
-catch(e){
-  console.error('Error onResponseStarted');
-  console.error(e);
-}
-*/
-/* FINE TEST BLOCKING REQUESTS WITH onResponseStarted */
-/* TEST BLOCKING REQUESTS WITH onBeforeSendHeaders */
-/*
-try{
-  chrome.webRequest.onBeforeSendHeaders.addListener(
-    function(info){
-      console.info('onBeforeSendHeaders');
-      console.log(info);
-      return{cancel:false};
-    },{urls: ["<all_urls>"]},
-  ["blocking"]);         //  optional array of strings
-}
-catch(e){
-  console.error('Error onBeforeSendHeaders');
-  console.error(e);
-}
-*/
-/* FINE TEST BLOCKING REQUESTS WITH onBeforeSendHeaders */
 /* TEST BLOCKING REQUESTS */
 
 
@@ -169,48 +136,6 @@ chrome.webRequest.onBeforeRequest.addListener(
           }
       });
     }
-    /*
-    if(ext_comm===false){ //external comm variable
-      //actual location
-      if(info.method === "POST" ){
-        if(info.type !== "ping"){
-          console.info(`POST enabled\n[method:] ${info.method}\t[url:] ${info.url}\t[type:] ${info.type}`);
-          var lista = info.requestBody.formData;
-          var tstring ="";
-          var l;
-          for(l in lista){
-            if( !((l.toString()).includes("password")) )
-              tstring+=l.toString()+": "+lista[l]+"\n";
-          }
-          console.log(tstring);
-        }
-      }
-      else{
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-          if(tabs[0]!== undefined){
-            var a = tabs[0].url.split('/');
-            var b = a[0]+'/'+a[1]+'/'+a[2]+'/';
-            if(info.url.startsWith(b) || info.url.startsWith("chrome-extension://") || info.url.startsWith(b.replace("http","https"))){
-              return {cancel:false};
-            }
-            else{
-              console.info(`${info.method} %cdisabled: ${info.url}\n[current url:] ${b} `,"color: red");
-              console.log(info);
-              return {cancel:true};
-            }
-          }
-          else{
-            return {cancel:true};
-          }
-
-        });
-      }  
-    }
-    else{
-      console.log(`[${info.method}] enabled: ${info.url} `);
-    }
-    return {cancel:false};
-    */
   },
   {urls: ["<all_urls>"]},
   ["blocking","requestBody"]);
@@ -258,87 +183,10 @@ try{
       else{
         console.error(`What is ${request.action}?`);
       }
-      /*
-      // check for content script tab
-      if(sender.hasOwnProperty('tab')){
-        // check for active tab property
-        if(sender.tab.hasOwnProperty('active')){
-          // check for active tab positive value
-          if(sender.tab.active){
-            // check for get policies request
-            if(request.action === "background_disable_ext_comm"){
-              ext_comm = false;
-              console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
-            }
-            else if(request.action === "background_enable_ext_comm"){
-              ext_comm = true;
-              console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
-            }          
-            else if(request.action === "background_load"){
-              console.log(`[Background.js] Request : ${request.action}  -> ${policies_array}`);
-              sendResponse({policies: JSON.stringify(policies_array)});
-            }
-            else if(request.action === "background_set"){
-              policies_array = JSON.par(request.policies);
-              console.log(`[Background.js] Policies changed to :   ${policies_array}`);
-              // salva e ricarica
-              chrome.storage.sync.set({'policies': policies_array},function(){
-                chrome.runtime.sendMessage({action:"before_reload"}, function(){});
-              });              
-            }
-            else{
-              
-            } 
-          }
-        }
-      }
-      else{
-        if(sender.hasOwnProperty('url')){
-          if(sender.url){
-            var start = "chrome-extension://";
-            var end = "/html/popup.html";
-            if( sender.url.startsWith("chrome-extension://") === true && sender.url.endsWith("/html/popup.html") === true){
-              if(request.action === "background_set"){
-                policies_array = JSON.parse(request.policies);
-                console.log(`[Background.js] Policies changed to :   ${policies_array}`);
-                chrome.storage.sync.set({'policies': policies_array},function(){
-                  chrome.runtime.sendMessage({action:"before_reload"}, function(){});
-                });              
-              }
-            }
-          } 
-        }
-      }
-      */
-      //request from the popup
-      /* not useful anymore */
-      /*
-      if(sender.url.endsWith("popup.html",sender.url.length)){
-        // check for save policies request
-        if(request.action === "background_set"){
-          console.log(`[Background.js] Request : ${request.action}
-                  policies: ${request.policies}`);
-          // saving to storage.sync
-          policies_array = JSON.parse(request.policies);
-          chrome.storage.sync.set({'policies': request.policies}, 
-            function() {
-              console.info('[Background.js] data saved');
-          });
-        }
-        // check for get policies request
-        if(request.action === "background_load"){
-          console.log(`[Background.js] Request : ${request.action}
-                  Reply: policies_array`);
-          sendResponse({policies: JSON.stringify(policies_array)});
-        }
-      }*/
   });
 }
 catch(error){
   console.error('[Background.js] Requests error: get/set ');
   console.error(error);
 }
-
-
-
 console.info(`[Background.js] End : mm:ss:mmm ${getTime()}`);

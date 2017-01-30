@@ -1,6 +1,6 @@
 			'use strict';
-			window["random_value"]=true; 
-			window["random_list"] = new Map();
+			//window["random_value"]=true; 
+			//window["random_list"] = new Map();
 
 			window["cookie_read_notice"] = true;
 			window["cookie_write_notice"] = true;
@@ -16,7 +16,6 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			////(Object.freeze || Object)(Object.prototype);
 			// permission_read_cookie
 			Object.defineProperty(window,'permission_read_cookie',{
 			      value:${policy_array[1]},
@@ -24,7 +23,6 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			////(Object.freeze || Object)(Object.prototype);	
 			// permission_write_cookie
 			Object.defineProperty(window,'permission_write_cookie',{
 			      value:${policy_array[2]},
@@ -32,7 +30,6 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			////(Object.freeze || Object)(Object.prototype); 		
 			// permission_document_write 
 			Object.defineProperty(window,'permission_document_write',{
 			      value:${policy_array[3]},
@@ -40,7 +37,6 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			////(Object.freeze || Object)(Object.prototype);			
 			// permission_local_storage 
 			Object.defineProperty(window,'permission_local_storage',{
 			      value:${policy_array[4]},
@@ -48,7 +44,6 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			////(Object.freeze || Object)(Object.prototype);			
 			// permission_session_storage
 			Object.defineProperty(window,'permission_session_storage',{
 			      value:${policy_array[5]},
@@ -56,7 +51,6 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			//(Object.freeze || Object)(Object.prototype);			
 			// permission_external_communication 
 			Object.defineProperty(window,'permission_external_communication',{
 			      value:${policy_array[6]},
@@ -64,7 +58,6 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			//(Object.freeze || Object)(Object.prototype);			
 			// permission_navigator 
 			Object.defineProperty(window,'permission_navigator',{
 			      value:${policy_array[7]},
@@ -72,15 +65,13 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			//(Object.freeze || Object)(Object.prototype);			
 			// permission_frame_comm = true; //framecomm
 			Object.defineProperty(window,'permission_frame_comm',{
 			      value:false,
 			      configurable:false,
 			      writable:false,
 			      enumerable:false
-			    });
-			//(Object.freeze || Object)(Object.prototype);			
+			});
 			// hide_document_prototype = false;
 			Object.defineProperty(window,'permission_frame_comm',{
 			      value:false,
@@ -88,7 +79,6 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			//(Object.freeze || Object)(Object.prototype);			
 			// permission_notification 
 			Object.defineProperty(window,'permission_notification',{
 			      value:${policy_array[8]},
@@ -104,40 +94,10 @@
 			      writable:false,
 			      enumerable:false
 			    });
-			//(Object.freeze || Object)(Object.prototype);			
-			// hide_document_prototype = false;
-
-			Object.defineProperty(window,'hide_document_prototype',{
-			      value:false,
-			      configurable:false,
-			      writable:false,
-			      enumerable:false
-			    });
-			//(Object.freeze || Object)(Object.prototype);	
-
-			// permission_create_element_iframe = false; TODO TRUE 
-			Object.defineProperty(window,'permission_create_element_iframe',{
-			      value:true,
-			      configurable:false,
-			      writable:false,
-			      enumerable:false
-			    });
-			//(Object.freeze || Object)(Object.prototype);			
-			// permission_change_location_href = false;
-			Object.defineProperty(window,'permission_change_location_href',{
-			      value:false,
-			      configurable:false,
-			      writable:false,
-			      enumerable:false
-			    });
-			//(Object.freeze || Object)(Object.prototype);	
-				
-				
+						
 			//missing  domaccess-read e domaccess-write
-
-			var c;
-			if(!permission_ui){
-				// windo.alert
+			if(!permission_ui){	
+				// windo.alert 
 				var alert =  new Proxy(function() {}, {
 				  apply: function(target, thisArg, argumentsList) {
 				  	if(window["ui_notice"]){
@@ -151,7 +111,6 @@
 			    writable:false,
 			    enumerable:false
 			   });				
-				//(Object.freeze || Object)(Object.prototype);
 				// window.prompt
 				var prompt =  new Proxy(function() {}, {
 				  apply: function(target, thisArg, argumentsList) {
@@ -166,7 +125,6 @@
 			    writable:false,
 			    enumerable:false
 			   });				
-				//(Object.freeze || Object)(Object.prototype);
 				// window.confirm
 				var confirm =  new Proxy(function() {}, {
 				  apply: function(target, thisArg, argumentsList) {
@@ -181,7 +139,6 @@
 			    writable:false,
 			    enumerable:false
 			   });				
-				//(Object.freeze || Object)(Object.prototype);	
 				// window.open
 				var open =  new Proxy(function() {}, {
 				  apply: function(target, thisArg, argumentsList) {
@@ -196,7 +153,6 @@
 			    writable:false,
 			    enumerable:false
 			   });				
-				//(Object.freeze || Object)(Object.prototype);				
 			}
 			// false - false
 			if( (permission_read_cookie === false) && (permission_write_cookie == false)){
@@ -286,7 +242,6 @@
 			    writable:false,
 			    enumerable:false
 			 	});				
-				//(Object.freeze || Object)(Object.prototype);
 			}
 			/*
 			Object.getOwnPropertyDescriptor(window,'localStorage');
@@ -301,7 +256,7 @@
 			So I can only delete
 			*/
 			//Window.localStorage e Window.sessionStorage
-			if(!permission_session_storage && !permission_local_storage){
+			if( (permission_session_storage === false) && (permission_local_storage === false)){
 				// local storage
 				Object.defineProperty(window,'localStorage',{
 					value: null,
@@ -309,8 +264,6 @@
 			    writable:false,
 			    enumerable:false
 			   });				
-				//(Object.freeze || Object)(Object.prototype);
-
 				//session storage
 				Object.defineProperty(window,'sessionStorage',{
 					value: null,
@@ -318,10 +271,8 @@
 			    writable:false,
 			    enumerable:false
 			   });				
-				//(Object.freeze || Object)(Object.prototype);
 			}
-			else{
-				if(!permission_local_storage){
+			else if( (permission_local_storage === false) && (permission_session_storage === true)){
 				Object.defineProperty(window,'localStorage',{
 					value: null,
 			    configurable:false,
@@ -329,8 +280,8 @@
 			    enumerable:false
 			   });				
 				//(Object.freeze || Object)(Object.prototype);					
-				}
-				if(!permission_session_storage){
+			}
+			else if((permission_local_storage === true) && (permission_session_storage === false)){
 				//session storage
 				Object.defineProperty(window,'sessionStorage',{
 					value: null,
@@ -338,111 +289,31 @@
 			    writable:false,
 			    enumerable:false
 			   });				
-				//(Object.freeze || Object)(Object.prototype);					
-				}
 			}
-			if(!permission_external_communication){
-				/* TODO 
-				devo fare in modo che non possa fare connessione all'esterno
-				ma che ne possa fare al url nello stesso url tip /getQualcosa 
-				mancano altri metodi di XMLHttpRequest
-				*/
-				/*
-				if(true){
-				  let old_open = XMLHttpRequest.prototype.open;
-				  XMLHttpRequest.prototype.open = new Proxy(function() {}, {
-				      apply: function(target, thisArg, argumentsList) {
-				          if(window.random_value){
-				              let result = old_open.apply(thisArg, argumentsList);
-				              return result;
-				              console.log(result);
-				          }
-				          else{
-				              console.warn("Blocked external connection");
-				          }
-				      }
-				  });
-				}
-				Object.defineProperty(XMLHttpRequest.prototype,'open',{
-				    configurable:false,
-				    writable:false,
-				    enumerable:false
-				});
-				//(Object.freeze || Object)(Object.prototype);
-				if(true){
-				  let old_send = XMLHttpRequest.prototype.send;
-				  XMLHttpRequest.prototype.send = new Proxy(function() {}, {
-				    apply: function(target, thisArg, argumentsList) {
-				      if(window.random_value){
-				        console.log(argumentsList);
-				        let result= old_send.apply(thisArg, argumentsList);
-				        console.log(result);
-				        return result;
-				      }
-				      else{
-				        console.warn('Blocked send operation')
-				      }
-				    }
-				  });
-				}*/
-				/*
-				Object.defineProperty(XMLHttpRequest.prototype,'send',{
-				  configurable:false,
-				  writable:false,
-				  enumerable:false
-				});
-				//(Object.freeze || Object)(Object.prototype);
-				// PostMessage
-				var postMessage = new Proxy(function(){},{
-					apply:function(targe,thisArg,argumentsList){
-						console.log('post message to' + argumentsList);
-						//return undefined
-					},
-				  get: function(){
-				  	console.log('trying to get postMessage');
-				  	//return undefined;
-				  }
-				});			
-				Object.defineProperty(window,'postMessage',{
-				  configurable:false,
-				  writable:false,
-				  enumerable:false
-				});
-				//(Object.freeze || Object)(Object.prototype);		
-			}
+			else{}
+			
 			if(!permission_navigator){
-				/* writable : false, configurable : true
+				/* writable : false, configurable : true*/
 				Object.defineProperty(window, 'navigator', {
 					value: null,
 				  configurable:false,
 				  writable:false,
 				  enumerable:false
 				});
-				//(Object.freeze || Object)(Object.prototype);	
-			    Object.defineProperty(window, 'Navigator', {
+			  Object.defineProperty(window, 'Navigator', {
 			   	value:null,
 				  configurable:false,
 				  writable:false,
 				  enumerable:false
 				});
-				//(Object.freeze || Object)(Object.prototype);	
-				*/
 			}
-			if(!permission_notification){		
-			/* TODO 
-			Object.getOwnPropertyDescriptor(Notification.prototype,'timestamp');	
-			Per ogni elemento di Notification.prototype devo annullare
-			*/
-				Object.defineProperty(window, 'notification', {
-			    get: function() {		    	
-			      	console.log('notification DISABLED');
-			      	//return undefined;
-			    }});
-			    Object.defineProperty(window, 'Notification', {
-			    get: function() {		    	
-			      	console.log('Notification DISABLED');
-			      	//return undefined;
-			    }});
+			if(!permission_notification){	
+			Object.defineProperty(window, 'Notification', {
+					value: null,
+				  configurable:false,
+				  writable:false,
+				  enumerable:false
+				});	
 			}
 			if(!permission_eval){
 				window.eval = new Proxy(function() {}, {
@@ -458,7 +329,6 @@
 				  writable:false,
 				  enumerable:false
 				});
-				//(Object.freeze || Object)(Object.prototype);				
 			}
 			// due to twitter modification of console.log must wrap it
 			if(true){
@@ -466,133 +336,24 @@
 				let old_error = console.error;
 				let old_info = console.info;
 
-				//first is console.log
-				/*console.log = new Proxy(function() {}, {
-				  apply: function(target, thisArg, argumentsList) {	
-				  	var count = 0;
-				  	for(count = 0; count < argumentsList.length; count++);{
-				  		old_log.call(window,argumentsList)[0];
-				  	}
-				  	//var result = old_log.apply(target,thisArg,argumentsList);
-				  	//return result;
-				  }
-				});*/
 			  Object.defineProperty(window.console, 'log', {
 				  configurable:false,
 				  writable:false,
 				  enumerable:false
 				});
-				// second console.error
-				/*
-				console.error = new Proxy(function() {}, {
-				  apply: function(target, thisArg, argumentsList) {	
-				  	var result = old_error.call(thisArg,argumentsList);
-				  	return result;
-				  }
-				});*/
 			  Object.defineProperty(window.console, 'error', {
 				  configurable:false,
 				  writable:false,
 				  enumerable:false
 				});	
-				// third console.info
-				/*
-				console.info = new Proxy(function() {}, {
-				  apply: function(target, thisArg, argumentsList) {	
-				  	var result = old_info.call(thisArg,argumentsList);
-				  	return result;
-				  }
-				});*/
 			  Object.defineProperty(window.console, 'info', {
 				  configurable:false,
 				  writable:false,
 				  enumerable:false
-				});
-				// last lock console
-				
+				});				
 				Object.defineProperty(window, 'console', {
 				  configurable:false,
 				  writable:false,
 				  enumerable:false
 				});
-				//(Object.freeze || Object)(Object.prototype);				
 			}
-			if(!permission_change_location_href){
-				//location writable : true, configurable : false	
-				//console.info('location can still be accessed because\\nwritable:true\\nconfigurable:false');
-			}
-
-			//document create element iframe
-			if(!permission_create_element_iframe){
-				let old_create = document.createElement;
-				document.createElement = new Proxy(function() {}, {
-				  apply: function(target, thisArg, argumentsList) {
-				  	var just_created = old_create.call(document,argumentsList[0]);
-				  	if(just_created.tagName === 'FRAME' || just_created.tagName ==='IFRAME'){
-				  		console.log('createElement '+argumentsList+' DISABLED.');
-				  	}
-				  	else{
-				  		return just_created;
-				  	}
-				  }
-				});
-				Object.defineProperty(Document.prototype, 'createElement', {
-				  configurable:false,
-				  writable:false,
-				  enumerable:false
-				});
-				//(Object.freeze || Object)(Object.prototype);			
-				
-			}
-			//hiding the prototype of document
-
-			if(hide_document_prototype){
-				document.__proto__ = null;
-			}
-
-			//console.log('document.__proto__ '+document.__proto__);
-
-			//console.log('window.__proto__ '+window.__proto__);
-
-			if(false){
-				// TODO - PERCHÈ HO SCRITTO QUESTA COSA?
-			    let old_addEventListener = EventTarget.prototype.addEventListener;
-			    let stopConnection = function(){
-			    	console.log('Before handler');
-			    	var port = chrome.extension.connect();
-						port.postMessage({action:"background_block_ext_comm_disabled"});
-
-
-			      /*chrome.runtime.sendMessage({action:"background_block_ext_comm_disabled"}, function(){
-			        console.log('[B] asks for disable external requests');
-			      });*/
-			    }
-			    EventTarget.prototype.addEventListener = new Proxy(function() {}, {
-			        apply: function(target, thisArg, argumentsList) { 
-				        try{
-				            //check for input element
-				            if(thisArg.tagName ==="INPUT" && thisArg.type === "password" && argumentsList[0] === "focus"){
-				                if(window["random_list"].get(thisArg) === undefined){
-				                    //aggiungo il mio evento
-				                    old_addEventListener.apply(thisArg,["focus",stopConnection]);
-				                    //aggiungo il suo evento
-				                    old_addEventListener.apply(thisArg,argumentsList);
-				                    //
-				                    window["random_list"].set(thisArg,true);
-				                }
-				            }
-				            else{
-				            	old_addEventListener.apply(thisArg,argumentsList);
-				            }
-				        }
-				        catch(error){
-				        	old_addEventListener.apply(thisArg,argumentsList);
-				        }
-			        }
-			    });
-			}
-			Object.defineProperty(EventTarget.prototype, 'addEventListener', {
-			  configurable:false,
-			  writable:false,
-			  enumerable:false
-			});

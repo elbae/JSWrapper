@@ -22,43 +22,6 @@ PopupController.prototype = {
           input_list[i].checked=false;
         }
     }
-    /*chrome.runtime.sendMessage({action: "load-policies"},function(response){
-      try{
-        var ext_list = JSON.parse(response.policies);
-        var input_list = document.getElementsByTagName('input');
-          var i=0;
-          for(i=0;i<ext_list.length && i<input_list.length;i++){
-              if(ext_list[i]===true){
-                input_list[i].checked=true;
-              }
-              else{
-                input_list[i].checked=false;
-              }
-          }
-      }
-      catch(error){
-        console.error(error);
-        chrome.runtime.sendMessage({action: "generic-error",error : "load-policies"});
-      }
-    });*/
-    /*
-    chrome.runtime.sendMessage({action: "background_load"},
-      function(response) {
-        //response.policies is a string
-        var bool_list = JSON.parse(response.policies);
-        var input_list = document.getElementsByTagName('input');
-        var i=0;
-        for(i=0;i<bool_list.length && i<input_list.length;i++){
-          if(bool_list[i]===true){
-            input_list[i].checked=true;
-          }
-          else{
-            input_list[i].checked=false;
-          }
-        }
-      }
-    );*/
-    // saving data in the storage with chrome.storage.sync
   },
   saveValues : function(){
     var input_list = document.getElementsByTagName('input');
@@ -73,14 +36,8 @@ PopupController.prototype = {
     chrome.storage.sync.set({'policies': ext_list},function(){
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
-        //window.close();
       });
-      //chrome.runtime.sendMessage({action: "generic-error",error : "lolo"});
-      //this.sendReloadMessage()
     });
-    //chrome.runtime.sendMessage({action: "save-policies",policies:ext_list});
-    //setTimeout(this.sendReloadMessage(),300);
-
   },
   addCheckListeners: function () {
     this.button_.addEventListener('click', this.handleClick_.bind(this));
@@ -99,7 +56,6 @@ PopupController.prototype = {
   handleClick_: function () {    
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
-        //window.close();
     });
   }
 };

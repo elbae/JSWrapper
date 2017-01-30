@@ -5,41 +5,9 @@ time = "";
 window['message_disable'] = true;
 var tm = new Map();
 console.log(`%c[A]%c Start : mm:ss:mmm ${time} on %c${document.domain}`,'color:Chocolate','color:black',"color: green");
-//at first i want to enable every connection
-
-//then i want to add the listener
-
-/*
-function _sendPostData(){
-  try{    
-    var params = JSON.stringify({"parametro" : "asdfasdfasdfas"});
-    var oReq = new XMLHttpRequest();
-    oReq.open("POST", "https://accounts.google.com/signin/challenge/sl/password");
-    oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    oReq.setRequestHeader("Finiro-mai-sta-tesi", ":(");
-    oReq.send(params);
-  }
-  catch(e){
-    console.log('Error in _sendData() function');
-    console.error(e);
-  }
-}
-function _sendGetData(){
-// GET HTTPS REQUEST
-  try{    
-    var oReq = new XMLHttpRequest();
-    oReq.open("GET", "https://www.google.it/search?q="+'lol');
-    oReq.send();
-  }
-  catch(e){
-    console.log('Error in _sendData() function');
-    console.error(e);
-  }
-}*/
-
-console.log(document);
+//console.log(document);
 function handler_normal(){
-  chrome.runtime.sendMessage({action:"background_disable_ext_comm", domain:document.domain}, function(){
+  chrome.runtime.sendMessage({action:"disable-extcomm", domain:document.domain}, function(){
     if(window['message_disable']){
       window['message_disable']=false;
       console.log(`%c[A]%c asks for disable external requests`,'color:Chocolate','color:black');
@@ -48,7 +16,7 @@ function handler_normal(){
 }
 function handler_check(){
   if(this.type === "password"){
-    chrome.runtime.sendMessage({action:"background_disable_ext_comm",domain: document.domain}, function(){
+    chrome.runtime.sendMessage({action:"disable-extcomm",domain: document.domain}, function(){
       if(window['message_disable']){
         window['message_enable']=false;
         console.log(`%c[A]%c asks for disable external requests`,'color:Chocolate','color:black');
