@@ -199,7 +199,9 @@
 				//(Object.freeze || Object)(Object.prototype);				
 			}
 			// false - false
-			if( (permission_read_cookie === false) && (permission_write_cookie === false)){
+			if( (permission_read_cookie === false) && (permission_write_cookie == false)){
+				Object.defineProperty(Document.prototype, 'cookie',{get : function(){},set : function(value){}});
+				Object.defineProperty(Document.prototype, 'cookie',{ configurable:false, writable:false});				
 				Object.defineProperty(document, 'cookie', {
 				    get: function() {
 				    	if(window["cookie_read_notice"]){
@@ -214,22 +216,11 @@
 				    	}
 				    }
 				});
-				/*Object.defineProperty(Document.prototype, 'cookie', {
-				    get: function() {
-				    	if(window["cookie_read_notice"]){
-				    		window["cookie_read_notice"]=false;
-			        	console.log('READ COOKIE DISABLED for '+location );		        
-				    	}
-				    },
-				    set: function(val) {
-				    	if(window["cookie_write_notice"]){
-				    		window["cookie_write_notice"]=false;
-			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
-				    	}
-				    }
-				});*/
 			} // false - true
-			else if( (permission_read_cookie === false) && (permission_write_cookie === true)){
+			else if( (permission_read_cookie === false) && (permission_write_cookie == true)){
+				let old_cookie = Object.getOwnPropertyDescriptor(Document.prototype,'cookie');
+				Object.defineProperty(Document.prototype, 'cookie',{get : function(){},set : function(value){}});
+				Object.defineProperty(Document.prototype, 'cookie',{ configurable:false, writable:false});				
 				Object.defineProperty(document, 'cookie', {
 				    get: function() {
 				    	if(window["cookie_read_notice"]){
@@ -238,58 +229,45 @@
 				    	}
 				    },
 				    set: function(val) {
+				    	old_cookie.set.call(document,val);
+				    }
+				});	
+			} // true - false
+			else if( (permission_read_cookie === true) && (permission_write_cookie == false)){
+				let old_cookie = Object.getOwnPropertyDescriptor(Document.prototype,'cookie');
+				Object.defineProperty(Document.prototype, 'cookie',{get : function(){},set : function(value){}});
+				Object.defineProperty(Document.prototype, 'cookie',{ configurable:false, writable:false});				
+				Object.defineProperty(document, 'cookie', {
+				    get: function() {
+				    	return old_cookie.get.call(document);
+				    },
+				    set: function(val) {
 				    	if(window["cookie_write_notice"]){
-				    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-				        c.set.call(document,val)
+				    		window["cookie_write_notice"]=false;
+			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 				    	}
 				    }
 				});		
-				/*
-				Object.defineProperty(Document.prototype, 'cookie', {
-				    get: function() {
-				    	if(window["cookie_read_notice"]){
-				    		window["cookie_read_notice"]=false;
-			        	console.log('READ COOKIE DISABLED for '+location );		        
-				    	}
-				    },
-				    set: function(val) {
-				    	if(window["cookie_write_notice"]){
-				    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-				        c.set.call(document,val)
-				    	}
-				    }
-				});				*/	
-			} // true - false
-			else if( (permission_read_cookie === true) && (permission_write_cookie === false)){
-				Object.defineProperty(document, 'cookie', {
-				    get: function() {
-			    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-			    		console.error(c);
-		        	return c.get.call(document);				    	
-				    },
-				    set: function(val) {
-				    	if(window["cookie_write_notice"]){
-				    		window["cookie_write_notice"]=false;
-			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
-				    	}
-				    }
-				});
-				/*
-				Object.defineProperty(Document.prototype, 'cookie', {
-				    get: function() {
-			    		c = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
-		        	return c.get.call(document);				    	
-				    },
-				    set: function(val) {
-				    	if(window["cookie_write_notice"]){
-				    		window["cookie_write_notice"]=false;
-			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
-				    	}
-				    }
-				});				*/			
 			}	// true - true
 			else{
+				// clone the descriptor in old_cookie
+				let old_cookie = Object.getOwnPropertyDescriptor(Document.prototype,'cookie');
 
+				// hiding getter and setter for the visible descriptor, disable modification
+				Object.defineProperty(Document.prototype, 'cookie',{get : function(){},set : function(value){}});
+				Object.defineProperty(Document.prototype, 'cookie',{ configurable:false, writable:false});
+
+				// Editing getter and setter 
+				Object.defineProperty(document, 'cookie',{
+			    get: function() {
+			    	console.log('Getting cookie...');
+			      return old_cookie.get.call(document);
+			    },
+			    set: function(value) {
+			    	console.log('Setting cookie...'+value);
+				   	return old_cookie.set.call(document,value);
+			    }
+				});
 			}
 
 

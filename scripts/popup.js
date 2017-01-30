@@ -10,28 +10,37 @@ PopupController.prototype = {
   button_: null,
   check_ui: null,
   setValues: function(){ 
-    /* i want to load from the storage */
-    chrome.storage.sync.get('policies', function(result) {
-      if(result.policies !== undefined){
-        var ext_list = JSON.parse(result.policies);
-        //ok, loading into the extension
-        var input_list = document.getElementsByTagName('input');
-        var i=0;
-        for(i=0;i<ext_list.length && i<input_list.length;i++){
-            if(ext_list[i]===true){
-              input_list[i].checked=true;
-            }
-            else{
-              input_list[i].checked=false;
-            }
+    var background_window = chrome.extension.getBackgroundPage();
+    var ext_list = background_window.policies_array;
+    var input_list = document.getElementsByTagName('input');
+    var i=0;
+    for(i=0;i<ext_list.length && i<input_list.length;i++){
+        if(ext_list[i]===true){
+          input_list[i].checked=true;
         }
+        else{
+          input_list[i].checked=false;
+        }
+    }
+    /*chrome.runtime.sendMessage({action: "load-policies"},function(response){
+      try{
+        var ext_list = JSON.parse(response.policies);
+        var input_list = document.getElementsByTagName('input');
+          var i=0;
+          for(i=0;i<ext_list.length && i<input_list.length;i++){
+              if(ext_list[i]===true){
+                input_list[i].checked=true;
+              }
+              else{
+                input_list[i].checked=false;
+              }
+          }
       }
-      else{
-        // error, send error message
-        console.error('errore');
-        chrome.runtime.sendMessage({action: "generic_error", store_load : result},function(response){});
+      catch(error){
+        console.error(error);
+        chrome.runtime.sendMessage({action: "generic-error",error : "load-policies"});
       }
-    });
+    });*/
     /*
     chrome.runtime.sendMessage({action: "background_load"},
       function(response) {
@@ -57,12 +66,21 @@ PopupController.prototype = {
     var i=0;
     for(i=0;i<input_list.length;i++){
       value_array[i]=input_list[i].checked;
-    }
+    }    
+    var background_window = chrome.extension.getBackgroundPage();
+    background_window.policies_array = value_array; 
     var ext_list = JSON.stringify(value_array);
-    // saving into the storage
-    chrome.storage.sync.set({'policies': ext_list},function(){});
-    chrome.runtime.sendMessage({action: "background_set",policies:ext_list});
-    setTimeout(this.sendReloadMessage(),500);   
+    chrome.storage.sync.set({'policies': ext_list},function(){
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
+        //window.close();
+      });
+      //chrome.runtime.sendMessage({action: "generic-error",error : "lolo"});
+      //this.sendReloadMessage()
+    });
+    //chrome.runtime.sendMessage({action: "save-policies",policies:ext_list});
+    //setTimeout(this.sendReloadMessage(),300);
+
   },
   addCheckListeners: function () {
     this.button_.addEventListener('click', this.handleClick_.bind(this));
@@ -74,8 +92,7 @@ PopupController.prototype = {
   },
   sendReloadMessage:function(){
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, {action:'before_reload'}, function(response) {
-      //nothing to do here
+      chrome.tabs.sendMessage(tabs[0].id, {action:'reload-page'}, function(response) {
       });
     });
   },

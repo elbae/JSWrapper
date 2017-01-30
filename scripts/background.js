@@ -21,7 +21,8 @@ Is loaded as a process part of the extension
 function getTime(){
   var d = new Date();
   var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
-  return time;
+    //return time;
+  return "";
 }
 //check urls in order to enable or disable connection
 function checkUrls(url, req){
@@ -73,7 +74,8 @@ if(!debug){
   }
 }
 console.info(`[Background.js] Start : mm:ss:mmm ${getTime()}`);
-var ext_list = new Array();
+
+var policies_array = new Array();
 var ext_comm = true;
 
 //random string
@@ -96,32 +98,25 @@ local storage.
 If not found, creating them and saving in the local Storage
 */
 
-try{
-  chrome.storage.sync.get('policies', function(result) {
-    if(result.policies !== undefined){
-      ext_list = JSON.parse(result.policies);
-      console.info('[Background.js] Policies loaded : '+result.policies);
+chrome.storage.sync.get('policies', function(result) {
+  if(result.policies !== undefined){
+    try{
+      policies_array = JSON.parse(result.policies);
+      console.info('[Background.js] Policies loaded from storage: '+result.policies);
     }
-    else{
-        console.warn('[Background.js] Policies not found : creating');
-        //creating values
-        var arr = new Array(); var i=0;
-        for(i=0;i<10;i++){
-          arr[i]=true;
-        }     
-        ext_list = arr;        
-        chrome.storage.sync.set({'policies': JSON.stringify(ext_list)}, 
-            function() {
-              console.info('[Background.js] data saved');
-        });
-        console.info(ext_list);
-    }
-  });  
-}
-catch(error){
-  console.error('[Background.js] Policies error: loading/creation ');
-  console.error(error);
-}
+    catch(error){console.error(error)}
+  }
+  else{
+      console.warn('[Background.js] Policies not found : creating');
+      //creating values
+      var arr = new Array(); var i=0;
+      for(i=0;i<10;i++){
+        arr[i]=true;
+      }     
+      policies_array = arr;        
+      chrome.storage.sync.set({'policies': JSON.stringify(policies_array)},function() {console.info('[Background.js] data saved');});
+  }
+}); 
 
 /* TEST BLOCKING REQUESTS WITH onResponseStarted */
 /*
@@ -231,12 +226,39 @@ Listening for requests: get/set
 try{
   chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-      //console.log(request);
-      if(request.action == "generic_error"){
+      /*
+        Action by request.action
+      */
+      if(request.action === "disable-extcomm"){
+        ext_comm = false;
+        console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
+      }
+      else if(request.action === "enable-extcomm"){
+        if(sender.hasOwnProperty('tab')){
+          if(sender.tab.hasOwnProperty('active')){
+            ext_comm = true;
+            console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
+          }
+        }        
+      }
+      else if(request.action === "generic-error"){
         console.error(`[ERROR] : `);
         console.error(request);
         console.error(sender);
       }
+      else if(request.action === "load-policies"){
+        sendResponse({policies: JSON.stringify(policies_array)});
+        console.log(`[Background.js] Request : ${request.action}  -> ${policies_array}`);
+      }
+      else if(request.action === "save-policies"){
+        policies_array = JSON.parse(request.policies);
+        console.log(`[Background.js] Policies changed to : ${policies_array}`);
+        chrome.storage.sync.set({'policies': request.policies});
+      }
+      else{
+        console.error(`What is ${request.action}?`);
+      }
+      /*
       // check for content script tab
       if(sender.hasOwnProperty('tab')){
         // check for active tab property
@@ -253,20 +275,41 @@ try{
               console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
             }          
             else if(request.action === "background_load"){
-              console.log(`[Background.js] Request : ${request.action}
-                  Reply: ${ext_list}`);
-              sendResponse({policies: JSON.stringify(ext_list)});
+              console.log(`[Background.js] Request : ${request.action}  -> ${policies_array}`);
+              sendResponse({policies: JSON.stringify(policies_array)});
             }
             else if(request.action === "background_set"){
-              ext_list = JSON.par(request.policies);
-              console.log(`[Background.js] Policies changed to :  Reply: ${ext_list}`);
+              policies_array = JSON.par(request.policies);
+              console.log(`[Background.js] Policies changed to :   ${policies_array}`);
+              // salva e ricarica
+              chrome.storage.sync.set({'policies': policies_array},function(){
+                chrome.runtime.sendMessage({action:"before_reload"}, function(){});
+              });              
             }
             else{
-              console.error(`What is ${request.action}?`);
+              
             } 
           }
         }
       }
+      else{
+        if(sender.hasOwnProperty('url')){
+          if(sender.url){
+            var start = "chrome-extension://";
+            var end = "/html/popup.html";
+            if( sender.url.startsWith("chrome-extension://") === true && sender.url.endsWith("/html/popup.html") === true){
+              if(request.action === "background_set"){
+                policies_array = JSON.parse(request.policies);
+                console.log(`[Background.js] Policies changed to :   ${policies_array}`);
+                chrome.storage.sync.set({'policies': policies_array},function(){
+                  chrome.runtime.sendMessage({action:"before_reload"}, function(){});
+                });              
+              }
+            }
+          } 
+        }
+      }
+      */
       //request from the popup
       /* not useful anymore */
       /*
@@ -276,7 +319,7 @@ try{
           console.log(`[Background.js] Request : ${request.action}
                   policies: ${request.policies}`);
           // saving to storage.sync
-          ext_list = JSON.parse(request.policies);
+          policies_array = JSON.parse(request.policies);
           chrome.storage.sync.set({'policies': request.policies}, 
             function() {
               console.info('[Background.js] data saved');
@@ -285,8 +328,8 @@ try{
         // check for get policies request
         if(request.action === "background_load"){
           console.log(`[Background.js] Request : ${request.action}
-                  Reply: ext_list`);
-          sendResponse({policies: JSON.stringify(ext_list)});
+                  Reply: policies_array`);
+          sendResponse({policies: JSON.stringify(policies_array)});
         }
       }*/
   });
