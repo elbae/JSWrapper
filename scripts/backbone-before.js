@@ -8,6 +8,8 @@
 			window["eval_notice"] = true;
 			window["document_write_notice"] = true;
 
+			
+
 
 			// permission_ui
 			Object.defineProperty(window,'permission_ui',{
@@ -104,6 +106,8 @@
 				  		window["ui_notice"] = false;
 				    	console.log('UI DISABLED');
 				  	}
+				  	let log1 = document.getElementById('log1');
+				  	log1.value = parseInt(log1.value)+1;
 				  }
 				});
 				Object.defineProperty(window,'alert',{
@@ -118,6 +122,8 @@
 				  		window["ui_notice"] = false;
 				    	console.log('UI DISABLED');
 				  	}
+				  	let log1 = document.getElementById('log1');
+				  	log1.value = parseInt(log1.value)+1;
 				  }
 				});
 				Object.defineProperty(window,'prompt',{
@@ -132,6 +138,8 @@
 				  		window["ui_notice"] = false;
 				    	console.log('UI DISABLED');
 				  	}
+				  	let log1 = document.getElementById('log1');
+				  	log1.value = parseInt(log1.value)+1;
 				  }
 				});
 				Object.defineProperty(window,'confirm',{
@@ -146,6 +154,8 @@
 				  		window["ui_notice"] = false;
 				    	console.log('UI DISABLED');
 				  	}
+				  	let log1 = document.getElementById('log1');
+				  	log1.value = parseInt(log1.value)+1;
 				  }
 				});
 				Object.defineProperty(window,'open',{
@@ -164,12 +174,16 @@
 				    		window["cookie_read_notice"]=false;
 			        	console.log('READ COOKIE DISABLED for '+location );		        
 				    	}
-				    },
+					  	let log2 = document.getElementById('log2');
+					  	log2.value = parseInt(log2.value)+1;
+					    },
 				    set: function(val) {
 				    	if(window["cookie_write_notice"]){
 				    		window["cookie_write_notice"]=false;
 			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 				    	}
+					  	let log3 = document.getElementById('log3');
+					  	log3.value = parseInt(log3.value)+1;
 				    }
 				});
 			} // false - true
@@ -183,6 +197,8 @@
 				    		window["cookie_read_notice"]=false;
 			        	console.log('READ COOKIE DISABLED for '+location );		        
 				    	}
+					  	let log2 = document.getElementById('log2');
+					  	log2.value = parseInt(log2.value)+1;
 				    },
 				    set: function(val) {
 				    	old_cookie.set.call(document,val);
@@ -202,6 +218,8 @@
 				    		window["cookie_write_notice"]=false;
 			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 				    	}
+					  	let log3 = document.getElementById('log3');
+					  	log3.value = parseInt(log3.value)+1;
 				    }
 				});		
 			}	// true - true
@@ -234,6 +252,8 @@
 				  		window["document_write_notice"]=false;
 				    	console.log('DOCUMENT WRITE DISABLED for '+location );	
 				  	}
+				  	let log4 = document.getElementById('log4');
+				  	log4.value = parseInt(log4.value)+1;
 				    //return undefined;
 				  }
 				});
@@ -322,6 +342,8 @@
 			    		window["eval_notice"]=false;
 			      	console.log('EVAL DISABLED for '+location );	
 			    	}
+				  	let log5 = document.getElementById('log5');
+				  	log5.value = parseInt(log5.value)+1;
 				  }
 				});
 			  Object.defineProperty(window, 'eval', {

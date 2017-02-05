@@ -45,7 +45,7 @@ PopupController.prototype = {
     var input_list = document.getElementsByTagName('input');
     for(i=0;i<input_list.length;i++){
       input_list[i].addEventListener('change',this.saveValues.bind(this));  
-    }
+    }  
   },
   sendReloadMessage:function(){
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -57,9 +57,37 @@ PopupController.prototype = {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
     });
+  },
+  updateValues : function(){
+    let background_window = chrome.extension.getBackgroundPage(); 
+    let list = background_window.url_log_list;
+    let local_array;
+    let actual_url;
+    chrome.tabs.getSelected(null,function(tab) {
+      var actual_url = tab.url;
+      if( list.has(actual_url) === true){
+            local_array = JSON.parse(list.get(actual_url));
+      }
+      else{
+        console.error("Not present");
+      }   
+      var log1 = document.getElementById("log1");
+      log1.innerHTML = `<b>`+local_array[0]+`</b>`;
+      var log2 = document.getElementById("log2");
+      log2.innerHTML = `<b>`+local_array[1]+`</b>`;
+      var log3 = document.getElementById("log3");
+      log3.innerHTML = `<b>`+local_array[2]+`</b>`;
+      var log4 = document.getElementById("log4");
+      log4.innerHTML = `<b>`+local_array[3]+`</b>`;
+      var log5 = document.getElementById("log5");
+      log5.innerHTML = `<b>`+local_array[4]+`</b>`;
+
+      });
+    
   }
 };
 
 document.addEventListener('DOMContentLoaded', function () {
   window.PC = new PopupController();  
+  window.setInterval(function(){window.PC.updateValues();}, 250);
 });

@@ -1,8 +1,9 @@
 /* @TODO
 1) quando blocco una connessione, mostro nella console e salvo i dati con api storage 
-2) da popup metto un listener sulla parte di storage che contiene i log, mostro il numero (?? come -> guardare codice sorgente di adblock+ ??)
-3) devo dare la possibilità all'utente di scegliere se un url tra quelli bloccati può essere messo in whitelist (?? da valutare)
-4) non posso usare storage sync perchè ho il limite nella dimensione a 1mB(?)
+2) da popup metto un listener sulla parte di storage che contiene i log,
+ mostro il numero (?? come -> guardare codice sorgente di adblock+ ??)
+3) devo dare la possibilità all'utente di scegliere se un url tra
+ quelli bloccati può essere messo in whitelist (?? da valutare)
  */
 /* 
 /scripts/background.js
@@ -18,47 +19,31 @@ Is loaded as a process part of the extension
 */
 
 'use strict';
-function getTime(){
-  var d = new Date();
-  var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
-    //return time;
-  return "";
-}
-//check urls in order to enable or disable connection
-function checkUrls(url, req){
-    //same url
-    if(req.url.startsWith("chrome-extension://")){
-      console.log(req);
-      return true
-    }
-    else{
-      var splitted_url =url.split('/');
-      var splitted_req_url = (req.url).split('/');
-      var first_url = splitted_url[0]+"//"+splitted_url[2]
-      var second_url = splitted_req_url[0]+'//'+splitted_req_url[2]
-      if(first_url === second_url){
-        if(req.method === "POST"){
-          console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} \nTIME ${getTime()}`);
-          return true;
-        }
-        else{
-          console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} \nTIME ${getTime()}`,"color: red");
-          return false;
-        }
-      }
-      else{
-        console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} \nTIME ${getTime()}`,"color: red");
-        return false;
-      }
-    }
-    console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} \nTIME ${getTime()}`,"color: red");
-    return false;
-    //
-}
-//
-//var a = require('backbone-before.js');
-//
+
 var debug=true;
+var policies_array = new Array();
+var ext_comm = true;
+var request_domain = "";
+var log1=0;
+var log2=0;
+var log3=0;
+var log4=0;
+var log5=0;
+
+var url_log_list = new Map()
+var last_domain ="";
+var max_cookie_read_url ="";
+var max_cookie_read=0;
+var max_cookie_write_url="";
+var max_cookie_write=0;
+var max_eval_url="";
+var max_eval=0;
+var total_cookie_read=0;
+var total_cookie_write=0;
+var total_eval=0;
+var stat_parsed=0;
+
+
 if(!debug){
   console.log = function(text){
     return;
@@ -73,24 +58,82 @@ if(!debug){
     return;
   }
 }
-console.info(`[Background.js] Start : mm:ss:mmm ${getTime()}`);
+function logMEl(value, key, map) {
+  stat_parsed = stat_parsed+1;
+  let lsv = JSON.parse(value);
+  if(lsv[1] > max_cookie_read){
+    max_cookie_read = lsv[1];
+    max_cookie_read_url = key;
+  }
+  if(lsv[2] > max_cookie_write){
+    max_cookie_write = lsv[2];
+    max_cookie_write_url = key;
+  }
+  if(lsv[4] > max_eval){
+    max_eval = lsv[4];
+    max_cookie_write_url = key;
+  }
+  total_cookie_read = total_cookie_read + lsv[1];
+  total_cookie_write = total_cookie_write + lsv[2];
+  total_eval = total_eval +lsv[4];
+  console.log('%s | %s',key,value);
 
-var policies_array = new Array();
-var ext_comm = true;
-
-//random string
-var min=97; var max=123; var length=10;
-function getRandomInt(min,max){
-  return Math.random()*(max-min)+min;
 }
-function getRandomChar(min,max,length){
-  var i; var result=""; 
-  for(i=0;i<length;i++){result+=String.fromCharCode(getRandomInt(min,max));} 
-    return result;
-}
+var printMap = function(){
+  url_log_list.forEach(logMEl);
+  console.log("max_cookie_read [%s] : %s",max_cookie_read,max_cookie_read_url);
+  console.log("max_cookie_write [%s] : %s",max_cookie_write,max_cookie_write_url);
+  console.log("max_eval [%s] : %s",max_eval,max_eval_url);
+  console.log("stats");
+  console.log("avg cookie read [%s] ",total_cookie_read/stat_parsed);
+  console.log("avg cookie write [%s] ",total_cookie_write/stat_parsed);
+  console.log("avg eval use [%s] ",total_eval/stat_parsed);
+  /* statistiche
+  - media cookie letti, media cookie scritti, media eval
+  - max cookie letti, max cookie scritti, max eval
+  */
 
-var random_string = getRandomChar(min,max,length);
-console.log(random_string);
+}
+//check urls in order to enable or disable connection
+function checkUrls(req){
+    //same url
+    if(req.url.startsWith("chrome-extension://")){
+      //console.log(req);
+      return false;
+    }
+    else{
+      var splitted_url =request_domain.split('/');
+      var splitted_req_url = (req.url).split('/');
+      var first_url = splitted_url[0]+"//"+splitted_url[2]
+      var second_url = splitted_req_url[0]+'//'+splitted_req_url[2]
+
+      if(first_url === second_url){
+        if(req.method === "POST" || req.method === "GET"){
+          console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
+          return true;
+        }
+        else{
+          if(req.type === "stylesheet" ){
+            console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
+            return true;
+          }
+          else{
+            console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
+            return false;
+          }
+        }
+      }
+      else{
+        console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
+        return false;
+      }
+    }
+    console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
+    return false;
+    //
+}
+//
+console.info(`Start`);
 
 /* 
 Getting the policies from the chrome.storage.sync and saving them in the
@@ -102,19 +145,19 @@ chrome.storage.sync.get('policies', function(result) {
   if(result.policies !== undefined){
     try{
       policies_array = JSON.parse(result.policies);
-      console.info('[Background.js] Policies loaded from storage: '+result.policies);
+      console.info('[Policies] loaded from storage: '+result.policies);
     }
     catch(error){console.error(error)}
   }
   else{
-      console.warn('[Background.js] Policies not found : creating');
+      console.warn('[Policies] created');
       //creating values
       var arr = new Array(); var i=0;
       for(i=0;i<10;i++){
-        arr[i]=true;
+        arr[i]=false;
       }     
       policies_array = arr;        
-      chrome.storage.sync.set({'policies': JSON.stringify(policies_array)},function() {console.info('[Background.js] data saved');});
+      chrome.storage.sync.set({'policies': JSON.stringify(policies_array)},function() {});
   }
 }); 
 
@@ -125,20 +168,22 @@ try{
 chrome.webRequest.onBeforeRequest.addListener(
   function(info){ 
     //console.info(`${info.method} ENABLED- ${info.type} : ${info.url}\n`);
-    if(!ext_comm){
-      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-          if(tabs[0]!== undefined){
-            return{cancel:(!checkUrls(tabs[0].url,info))}
-          }
-          else{
-            return{cancel:true}
-
-          }
-      });
+    if(policies_array[6]){
+      console.info(`${info.method} ENABLED- ${info.type} : ${info.url}`);
+    }
+    else{  
+      // request.domain is the page address
+      if(!ext_comm){
+        //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+          let res = !checkUrls(info);
+          console.log("blocked:" + res);
+          return{cancel:res};
+        //});
+      }
     }
   },
   {urls: ["<all_urls>"]},
-  ["blocking","requestBody"]);
+  ["blocking"]);
 }
 catch(e){
   console.error("Background.js exception")
@@ -156,13 +201,14 @@ try{
       */
       if(request.action === "disable-extcomm"){
         ext_comm = false;
-        console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
+        console.log(`%c[DISABLE]%c ${request.action} - from %c${request.domain} `,"color:red","color:black","color: green");
       }
       else if(request.action === "enable-extcomm"){
         if(sender.hasOwnProperty('tab')){
           if(sender.tab.hasOwnProperty('active')){
             ext_comm = true;
-            console.log(`${request.action} at time ${getTime()} from %c${request.domain} `,"color: green");
+            request_domain = request.domain;
+            console.log(`${request.action} - from %c${request.domain} `,"color: green");
           }
         }        
       }
@@ -173,12 +219,59 @@ try{
       }
       else if(request.action === "load-policies"){
         sendResponse({policies: JSON.stringify(policies_array)});
-        console.log(`[Background.js] Request : ${request.action}  -> ${policies_array}`);
       }
       else if(request.action === "save-policies"){
         policies_array = JSON.parse(request.policies);
-        console.log(`[Background.js] Policies changed to : ${policies_array}`);
+        console.log(`[${request.action}]  -> ${policies_array}`);
         chrome.storage.sync.set({'policies': request.policies});
+      }
+      else if(request.action === "log-event"){
+        //console.log(request);
+        // posso avere domain last e allora uso last, oppure domain normale
+        let local_domain ="";
+        // checking the domain
+        if(request.domain === "last"){
+          local_domain = last_domain;
+          //console.log(local_domain);
+        }
+        else{
+          local_domain = request.domain;
+        }
+        // checking the storage
+        if(local_domain === ""){
+          console.error("[local_domain] empty");
+        }
+        else{
+          if(url_log_list.has(local_domain) === true){
+            let local_array = JSON.parse(url_log_list.get(last_domain));
+            var local_array_string;
+            let local_id = parseInt(request.event) - 1;
+            switch(local_id){
+              case 0:
+              case 1:
+              case 2:
+              case 3:
+              case 4:
+                local_array[local_id] = local_array[local_id] + 1;
+                break;
+              default:
+                console.error(request);
+                break;
+            }
+            local_array_string = JSON.stringify(local_array);
+            url_log_list.set(last_domain,local_array_string);
+          }
+          else{
+            console.error("[store missing index] for %s"+local_domain);
+          }
+        }
+      }
+      else if(request.action === "clear_logs"){
+          //console.log("clear "+request.domain +"| "+request.data);
+          url_log_list.set(last_domain,request.data);
+      }
+      else if(request.action === "log-event-url"){
+        last_domain = request.domain;
       }
       else{
         console.error(`What is ${request.action}?`);
@@ -186,7 +279,9 @@ try{
   });
 }
 catch(error){
-  console.error('[Background.js] Requests error: get/set ');
+  console.error('[Error] ');
   console.error(error);
 }
-console.info(`[Background.js] End : mm:ss:mmm ${getTime()}`);
+console.info(`[End]`);
+
+

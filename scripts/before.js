@@ -18,9 +18,9 @@ function getTime(){
   //return time;
   return "";
 }
-console.log('%c[B] %c Start : %s on %c%s','color:purple','color:black',getTime(),'color: green',document.domain);
+console.log('%c[B] %c Start : %s %c%s','color:purple','color:black',getTime(),'color: green',document.domain);
 
-//isFrame = (window!==window.top);
+isFrame = (window!==window.top);
 // Code running in a Chrome extension (content script, background page, etc.)
 
 /* 
@@ -36,14 +36,17 @@ custom_head.appendChild(custom_script);
 /* 
 	Immediately asks for enabling connection
 */
-try{
+if(!isFrame){
+	try{
+		chrome.runtime.sendMessage({action:"enable-extcomm", domain:location.origin}, function(){});
 	//console.log(`%c[B] %c asks for enable external requests at ${getTime()}`,'color:purple','color:black');
-	chrome.runtime.sendMessage({action:"enable-extcomm", domain:document.domain}, function(){});
+	}
+	catch(e){
+		alert('Error on chrome.runtime.sendMessage - {action:"enable-extcomm"} ');
+		console.error(e);
+	}
 }
-catch(e){
-	alert('Error on chrome.runtime.sendMessage - {action:"enable-extcomm"} ');
-	console.error(e);
-}
+
 /*
 
 
@@ -63,6 +66,8 @@ var includeScripts = function () {
 			window["ui_notice"] = true;
 			window["eval_notice"] = true;
 			window["document_write_notice"] = true;
+
+			
 
 
 			// permission_ui
@@ -160,6 +165,8 @@ var includeScripts = function () {
 				  		window["ui_notice"] = false;
 				    	console.log('UI DISABLED');
 				  	}
+				  	let log1 = document.getElementById('log1');
+				  	log1.value = parseInt(log1.value)+1;
 				  }
 				});
 				Object.defineProperty(window,'alert',{
@@ -174,6 +181,8 @@ var includeScripts = function () {
 				  		window["ui_notice"] = false;
 				    	console.log('UI DISABLED');
 				  	}
+				  	let log1 = document.getElementById('log1');
+				  	log1.value = parseInt(log1.value)+1;
 				  }
 				});
 				Object.defineProperty(window,'prompt',{
@@ -188,6 +197,8 @@ var includeScripts = function () {
 				  		window["ui_notice"] = false;
 				    	console.log('UI DISABLED');
 				  	}
+				  	let log1 = document.getElementById('log1');
+				  	log1.value = parseInt(log1.value)+1;
 				  }
 				});
 				Object.defineProperty(window,'confirm',{
@@ -202,6 +213,8 @@ var includeScripts = function () {
 				  		window["ui_notice"] = false;
 				    	console.log('UI DISABLED');
 				  	}
+				  	let log1 = document.getElementById('log1');
+				  	log1.value = parseInt(log1.value)+1;
 				  }
 				});
 				Object.defineProperty(window,'open',{
@@ -220,12 +233,16 @@ var includeScripts = function () {
 				    		window["cookie_read_notice"]=false;
 			        	console.log('READ COOKIE DISABLED for '+location );		        
 				    	}
-				    },
+					  	let log2 = document.getElementById('log2');
+					  	log2.value = parseInt(log2.value)+1;
+					    },
 				    set: function(val) {
 				    	if(window["cookie_write_notice"]){
 				    		window["cookie_write_notice"]=false;
 			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 				    	}
+				    	let log3 = document.getElementById('log3');
+					  	log3.value = parseInt(log3.value)+1;
 				    }
 				});
 			} // false - true
@@ -239,6 +256,8 @@ var includeScripts = function () {
 				    		window["cookie_read_notice"]=false;
 			        	console.log('READ COOKIE DISABLED for '+location );		        
 				    	}
+					  	let log2 = document.getElementById('log2');
+					  	log2.value = parseInt(log2.value)+1;
 				    },
 				    set: function(val) {
 				    	old_cookie.set.call(document,val);
@@ -258,6 +277,8 @@ var includeScripts = function () {
 				    		window["cookie_write_notice"]=false;
 			        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 				    	}
+					  	let log3 = document.getElementById('log3');
+					  	log3.value = parseInt(log3.value)+1;
 				    }
 				});		
 			}	// true - true
@@ -290,6 +311,8 @@ var includeScripts = function () {
 				  		window["document_write_notice"]=false;
 				    	console.log('DOCUMENT WRITE DISABLED for '+location );	
 				  	}
+				  	let log4 = document.getElementById('log4');
+				  	log4.value = parseInt(log4.value)+1;
 				    //return undefined;
 				  }
 				});
@@ -378,6 +401,8 @@ var includeScripts = function () {
 			    		window["eval_notice"]=false;
 			      	console.log('EVAL DISABLED for '+location );	
 			    	}
+				  	let log5 = document.getElementById('log5');
+				  	log5.value = parseInt(log5.value)+1;
 				  }
 				});
 			  Object.defineProperty(window, 'eval', {
@@ -426,25 +451,29 @@ var includeScripts = function () {
 /* 
 	Asks for policies to background, parse the response, load the script with the policies
 */
-if(isFrame){
+var log1 = document.createElement("input"); log1.type="hidden"; log1.value=0; log1.name="window-event"; log1.id="log1"; //cookie read
+var log2 = document.createElement("input"); log2.type="hidden"; log2.value=0; log2.name="cookie-read"; log2.id="log2";//cookie write
+var log3 = document.createElement("input"); log3.type="hidden"; log3.value=0; log3.name="cookie-write"; log3.id="log3";//document write
+var log4 = document.createElement("input"); log4.type="hidden"; log4.value=0; log4.name="document-write"; log4.id="log4";//eval
+var log5 = document.createElement("input"); log5.type="hidden"; log5.value=0; log5.name="eval"; log5.id="log5";//eval
+document.documentElement.appendChild(log1)	;
+document.documentElement.appendChild(log2)	;
+document.documentElement.appendChild(log3)	;
+document.documentElement.appendChild(log4)	;
+document.documentElement.appendChild(log5)	;
+
+if(isFrame){	
 	chrome.runtime.sendMessage({action:"load-policies", domain:document.domain}, function(response){
 		try{
 			policy_array = JSON.parse(response.policies);
-			localStorage.setItem('policies',response.policies);
-			console.log('saved '+response.policies);
-			console.log(document.documentElement);
-			console.log(document.head);
 			custom_head = document.createElement('head');
 			//(document.head || document.documentElement).appendChild(custom_head);
-			//document.documentElement.insertBefore(custom_head,document.head);
-			
-			//hd = document.documentElement.replaceChild(custom_head, document.head);
-			//document.documentElement.appendChild(hd);
+			document.documentElement.insertBefore(custom_head,document.head);
 			custom_script = document.createElement('script');
 			custom_script.setAttribute("type","text/javascript");
 			custom_head.appendChild(custom_script);
 			includeScripts();
-			console.log(`%c[B] %c End frame policies : mm:ss:mmm ${getTime()}`,'color:purple','color:black');
+			console.log(`%c[B] %c Frame with policies`,'color:purple','color:black');
 		}
 		catch(e){
 			console.error(e);
@@ -452,22 +481,17 @@ if(isFrame){
 	});
 }
 else{
-	chrome.runtime.sendMessage({action:"load-policies", domain:document.domain}, function(response){
+	chrome.runtime.sendMessage({action:"load-policies", domain:location.href}, function(response){
 		try{
 			policy_array = JSON.parse(response.policies);
-			//localStorage.setItem('policies',response.policies);
-			console.log('saved '+response.policies);
-
 			custom_head = document.createElement('head');
 			//(document.head || document.documentElement).appendChild(custom_head);
 			document.documentElement.insertBefore(custom_head,document.head);
-			console.log(document.documentElement);
-			console.log(document.head);
 			custom_script = document.createElement('script');
 			custom_script.setAttribute("type","text/javascript");
 			custom_head.appendChild(custom_script);
 			includeScripts();
-			console.log(`%c[B] %c End with policies : mm:ss:mmm ${getTime()}`,'color:purple','color:black');
+			console.log(`%c[B] %c with policies : mm:ss:mmm ${getTime()}`,'color:purple','color:black');
 		}
 		catch(e){
 			console.error(e);
@@ -575,7 +599,7 @@ getNReload();
 
 
 
-console.log(`%c[B] %c End without policies: mm:ss:mmm ${getTime()}`,'color:purple','color:black');
+//console.log(`%c[B] %c End without policies: mm:ss:mmm ${getTime()}`,'color:purple','color:black');
 
 /*
 TODO MODIFICHE
