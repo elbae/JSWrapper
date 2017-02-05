@@ -1,3 +1,4 @@
+
 html {
 	border-radius: 20%;
 }
@@ -90,13 +91,19 @@ input:checked + .slider:before {
 button{
 	position: relative;
 	display: block;
-	border-radius: 20%;
-	left: 55px;
+	left: 18%;
 	top:5px;
 	font-size: 15px;
 	color:black;
 	background-color:white;
 	font-weight: 5pt;
-	box-shadow: 0 0 1px #2196F3;
+  padding-left: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-right: 10px;
 
+}
+
+.log{
+	float: right;
 }
