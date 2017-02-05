@@ -107,8 +107,12 @@ function checkUrls(req){
       var first_url = splitted_url[0]+"//"+splitted_url[2]
       var second_url = splitted_req_url[0]+'//'+splitted_req_url[2]
 
+      // request and url are in the same domain
+      // -> everything is enabled
       if(first_url === second_url){
-        if(req.method === "POST" || req.method === "GET"){
+          console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
+          return true;        
+        /*if(req.method === "POST" || req.method === "GET"){
           console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
           return true;
         }
@@ -121,11 +125,20 @@ function checkUrls(req){
             console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
             return false;
           }
-        }
-      }
+        }*/
+      }// request and url are in different domains
       else{
-        console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
-        return false;
+        // css request are enabled
+        if(req.type === "stylesheet" ){
+          return true;
+        } // scripts loaded <script> tag enabled
+        else if(req.type === "script"){
+          return true;
+        } //everything else is disabled
+        else{
+          console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
+          return false;
+        }
       }
     }
     console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
@@ -208,7 +221,8 @@ try{
           if(sender.tab.hasOwnProperty('active')){
             ext_comm = true;
             request_domain = request.domain;
-            console.log(`${request.action} - from %c${request.domain} `,"color: green");
+            //console.log(`${request.action} - from %c${request.domain} `,"color: green");
+            console.log("Actual URL: %c%s","color:blue",request_domain);
           }
         }        
       }
