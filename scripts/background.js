@@ -16,6 +16,14 @@ Is loaded as a process part of the extension
 - receive requests for policies and send them to the popup
 - receive requests for policies modification save them in both storages
 
+
+window.onbeforeunload = function(e) {
+  var dialogText = 'Dialog text here';
+  e.returnValue = dialogText;
+  return dialogText;
+};
+
+
 */
 
 'use strict';
@@ -135,6 +143,10 @@ function checkUrls(req){
         else if(req.type === "script"){
           return true;
         } //everything else is disabled
+        else if(req.type === "main_frame"){
+          // otherwise hangouts and google apps fails
+          return true;
+        }
         else{
           console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
           return false;
@@ -276,15 +288,22 @@ try{
             url_log_list.set(last_domain,local_array_string);
           }
           else{
-            console.error("[store missing index] for %s"+local_domain);
+            console.info("[*] Content changed without reloading page [*] ")
+            console.log("From %s to %s",last_domain,local_domain);            
           }
         }
       }
       else if(request.action === "clear_logs"){
+        // received from after.js
           //console.log("clear "+request.domain +"| "+request.data);
+          //console.log("last domain "+last_domain);
+          //console.log("request domain"+request.domain);
+          //console.log("data "+request.data);
+          // because it is already in last_domain 
           url_log_list.set(last_domain,request.data);
       }
-      else if(request.action === "log-event-url"){
+      else if(request.action === "log-event-url"){ 
+        // before.js sends its top url 
         last_domain = request.domain;
       }
       else{

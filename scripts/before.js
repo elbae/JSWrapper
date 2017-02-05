@@ -67,6 +67,44 @@ var includeScripts = function () {
 			window["ui_notice"] = false;
 			window["eval_notice"] = false;
 			window["document_write_notice"] = false;
+
+
+			/*
+				creating my own console's functions
+			*/
+			// due to twitter modification of console.log must wrap it
+			// breaks glowingbear.com
+			/*
+			try{
+				if(true){
+					
+					let old_log = console.log;
+					let old_error = console.error;
+					let old_info = console.info;
+
+					var console.log =  new Proxy(function() {}, {
+						apply: function(target, thisArg, argumentsList) {
+							old_log.apply(argumentsList);
+						}
+					});
+					var console.info =  new Proxy(function() {}, {
+						apply: function(target, thisArg, argumentsList) {
+							old_info.apply(argumentsList);
+						}
+					});
+					var console.error =  new Proxy(function() {}, {
+						apply: function(target, thisArg, argumentsList) {
+							old_error.apply(argumentsList);
+						}
+					});
+				  Object.defineProperty(window, 'console.log', {value: console.log,configurable:false,writable:false,enumerable:false});
+				  Object.defineProperty(window, 'console.info', {value: console.info,configurable:false,writable:false,enumerable:false});
+				  Object.defineProperty(window, 'console.error', {value: console.error,configurable:false,writable:false,enumerable:false});
+				}
+			}
+			catch(error){
+				console.error(error);
+			}*/
 			
 			try
 			{
@@ -147,7 +185,7 @@ var includeScripts = function () {
 				console.error(error);
 
 			}
-			if( window.hasOwnProperty('permission_ui') && !window.permission_ui){
+			if( window.hasOwnProperty('permission_ui') && (!permission_ui)){
 				// wrapping alert function
 				try
 				{
@@ -358,7 +396,7 @@ var includeScripts = function () {
 			}
 
 
-			if(window.hasOwnProperty('permission_document_write') && !permission_document_write){
+			if(window.hasOwnProperty('permission_document_write') && (!permission_document_write)){
 				try
 				{
 					document.write =  new Proxy(function() {}, {
@@ -395,7 +433,7 @@ var includeScripts = function () {
 			So I can only delete
 			*/
 			// Window.localStorage
-			if(window.hasOwnProperty('permission_local_storage') && !permission_local_storage){
+			if(window.hasOwnProperty('permission_local_storage') && (!permission_local_storage)){
 				try{
 					Object.defineProperty(window,'localStorage',{
 					value: null,
@@ -409,7 +447,7 @@ var includeScripts = function () {
 				}
 			}
 			// Window.sessionStorage
-			if(window.hasOwnProperty('permission_session_storage') && !permission_session_storage){
+			if(window.hasOwnProperty('permission_session_storage') && (!permission_session_storage)){
 				try{
 					Object.defineProperty(window,'sessionStorage',{
 					value: null,
@@ -423,7 +461,7 @@ var includeScripts = function () {
 				}
 			}
 			
-			if(window.hasOwnProperty('permission_navigator' && !permission_navigator)){
+			if( window.hasOwnProperty('permission_navigator') && (!permission_navigator)){
 				try{ /* writable : false, configurable : true*/
 					Object.defineProperty(window, 'navigator', {
 					value: null,
@@ -442,7 +480,7 @@ var includeScripts = function () {
 					console.error(error);
 				}
 			}
-			if(window.hasOwnProperty('permission_notification' && !permission_notification)){
+			if( window.hasOwnProperty('permission_notification') && (!permission_notification)){
 				try{ /* writable : false, configurable : true*/
 					Object.defineProperty(window, 'Notification', {
 					value: null,
@@ -455,7 +493,7 @@ var includeScripts = function () {
 					console.error(error);
 				}
 			}
-			if(window.hasOwnProperty('permission_eval' && !permission_eval)){
+			if( window.hasOwnProperty('permission_eval') && (!permission_eval)){
 				try{
 					window.eval = new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {			  	
@@ -477,39 +515,7 @@ var includeScripts = function () {
 					console.error(error);
 				}
 			}			
-			// due to twitter modification of console.log must wrap it
-			// breaks glowingbear.com
-			try{
-				if(true){
-					let old_log = console.log;
-					let old_error = console.error;
-					let old_info = console.info;
-
-				  Object.defineProperty(window.console, 'log', {
-					  configurable:false,
-					  writable:false,
-					  enumerable:false
-					});
-				  Object.defineProperty(window.console, 'error', {
-					  configurable:false,
-					  writable:false,
-					  enumerable:false
-					});	
-				  Object.defineProperty(window.console, 'info', {
-					  configurable:false,
-					  writable:false,
-					  enumerable:false
-					});				
-					Object.defineProperty(window, 'console', {
-					  configurable:false,
-					  writable:false,
-					  enumerable:false
-					});
-				}
-			}
-			catch(error){
-				console.error(error);
-			}
+			
 `;
 //console.log(`%c[B] %c End with policies : mm:ss:mmm ${getTime()}`,'color:purple','color:black');
 }
@@ -523,6 +529,16 @@ var includeScripts = function () {
 /* 
 	Asks for policies to background, parse the response, load the script with the policies
 */
+var names = ["","window-event","cookie-read","cookie-write","document-write","eval"];
+for(count=1;count<6;count++){
+	window[`log${count}`] =document.createElement("input");
+	window[`log${count}`].type="hidden";
+	window[`log${count}`].value=0;
+	window[`log${count}`].name=names[count];
+	window[`log${count}`].id=`log${count}`;
+	document.documentElement.appendChild(window[`log${count}`]);
+}
+/*
 var log1 = document.createElement("input"); log1.type="hidden"; log1.value=0; log1.name="window-event"; log1.id="log1"; //cookie read
 var log2 = document.createElement("input"); log2.type="hidden"; log2.value=0; log2.name="cookie-read"; log2.id="log2";//cookie write
 var log3 = document.createElement("input"); log3.type="hidden"; log3.value=0; log3.name="cookie-write"; log3.id="log3";//document write
@@ -532,7 +548,7 @@ document.documentElement.appendChild(log1)	;
 document.documentElement.appendChild(log2)	;
 document.documentElement.appendChild(log3)	;
 document.documentElement.appendChild(log4)	;
-document.documentElement.appendChild(log5)	;
+document.documentElement.appendChild(log5)	;*/
 
 if(isFrame){	
 	chrome.runtime.sendMessage({action:"load-policies", domain:document.domain}, function(response){

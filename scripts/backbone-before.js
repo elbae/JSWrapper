@@ -8,6 +8,44 @@
 			window["ui_notice"] = false;
 			window["eval_notice"] = false;
 			window["document_write_notice"] = false;
+
+
+			/*
+				creating my own console's functions
+			*/
+			// due to twitter modification of console.log must wrap it
+			// breaks glowingbear.com
+			/*
+			try{
+				if(true){
+					
+					let old_log = console.log;
+					let old_error = console.error;
+					let old_info = console.info;
+
+					var console.log =  new Proxy(function() {}, {
+						apply: function(target, thisArg, argumentsList) {
+							old_log.apply(argumentsList);
+						}
+					});
+					var console.info =  new Proxy(function() {}, {
+						apply: function(target, thisArg, argumentsList) {
+							old_info.apply(argumentsList);
+						}
+					});
+					var console.error =  new Proxy(function() {}, {
+						apply: function(target, thisArg, argumentsList) {
+							old_error.apply(argumentsList);
+						}
+					});
+				  Object.defineProperty(window, 'console.log', {value: console.log,configurable:false,writable:false,enumerable:false});
+				  Object.defineProperty(window, 'console.info', {value: console.info,configurable:false,writable:false,enumerable:false});
+				  Object.defineProperty(window, 'console.error', {value: console.error,configurable:false,writable:false,enumerable:false});
+				}
+			}
+			catch(error){
+				console.error(error);
+			}*/
 			
 			try
 			{
@@ -88,7 +126,7 @@
 				console.error(error);
 
 			}
-			if( window.hasOwnProperty('permission_ui') && !window.permission_ui){
+			if( window.hasOwnProperty('permission_ui') && (!permission_ui)){
 				// wrapping alert function
 				try
 				{
@@ -299,7 +337,7 @@
 			}
 
 
-			if(window.hasOwnProperty('permission_document_write') && !permission_document_write){
+			if(window.hasOwnProperty('permission_document_write') && (!permission_document_write)){
 				try
 				{
 					document.write =  new Proxy(function() {}, {
@@ -336,7 +374,7 @@
 			So I can only delete
 			*/
 			// Window.localStorage
-			if(window.hasOwnProperty('permission_local_storage') && !permission_local_storage){
+			if(window.hasOwnProperty('permission_local_storage') && (!permission_local_storage)){
 				try{
 					Object.defineProperty(window,'localStorage',{
 					value: null,
@@ -350,7 +388,7 @@
 				}
 			}
 			// Window.sessionStorage
-			if(window.hasOwnProperty('permission_session_storage') && !permission_session_storage){
+			if(window.hasOwnProperty('permission_session_storage') && (!permission_session_storage)){
 				try{
 					Object.defineProperty(window,'sessionStorage',{
 					value: null,
@@ -364,7 +402,7 @@
 				}
 			}
 			
-			if(window.hasOwnProperty('permission_navigator' && !permission_navigator)){
+			if( window.hasOwnProperty('permission_navigator') && (!permission_navigator)){
 				try{ /* writable : false, configurable : true*/
 					Object.defineProperty(window, 'navigator', {
 					value: null,
@@ -383,7 +421,7 @@
 					console.error(error);
 				}
 			}
-			if(window.hasOwnProperty('permission_notification' && !permission_notification)){
+			if( window.hasOwnProperty('permission_notification') && (!permission_notification)){
 				try{ /* writable : false, configurable : true*/
 					Object.defineProperty(window, 'Notification', {
 					value: null,
@@ -396,7 +434,7 @@
 					console.error(error);
 				}
 			}
-			if(window.hasOwnProperty('permission_eval' && !permission_eval)){
+			if( window.hasOwnProperty('permission_eval') && (!permission_eval)){
 				try{
 					window.eval = new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {			  	
@@ -418,36 +456,4 @@
 					console.error(error);
 				}
 			}			
-			// due to twitter modification of console.log must wrap it
-			// breaks glowingbear.com
-			try{
-				if(true){
-					let old_log = console.log;
-					let old_error = console.error;
-					let old_info = console.info;
-
-				  Object.defineProperty(window.console, 'log', {
-					  configurable:false,
-					  writable:false,
-					  enumerable:false
-					});
-				  Object.defineProperty(window.console, 'error', {
-					  configurable:false,
-					  writable:false,
-					  enumerable:false
-					});	
-				  Object.defineProperty(window.console, 'info', {
-					  configurable:false,
-					  writable:false,
-					  enumerable:false
-					});				
-					Object.defineProperty(window, 'console', {
-					  configurable:false,
-					  writable:false,
-					  enumerable:false
-					});
-				}
-			}
-			catch(error){
-				console.error(error);
-			}
+			
