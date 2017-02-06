@@ -106,7 +106,7 @@ var printMap = function(){
 function checkUrls(req){
     //same url
     if(req.url.startsWith("chrome-extension://")){
-      //console.log(req);
+      console.log(req.type);
       return false;
     }
     else{
@@ -118,7 +118,8 @@ function checkUrls(req){
       // request and url are in the same domain
       // -> everything is enabled
       if(first_url === second_url){
-          console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
+          //console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
+          console.log("[%s] : %s",req.type,req.url);
           return true;        
         /*if(req.method === "POST" || req.method === "GET"){
           console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
@@ -137,24 +138,19 @@ function checkUrls(req){
       }// request and url are in different domains
       else{
         // css request are enabled
-        if(req.type === "stylesheet" ){
+        if(req.type === "main_frame" || req.type === "sub_frame" || req.type === "stylesheet" || req.type === "script" || req.type === "font"){
+          console.log("[%s] : %s",req.type,req.url);
           return true;
-        } // scripts loaded <script> tag enabled
-        else if(req.type === "script"){
-          return true;
-        } //everything else is disabled
-        else if(req.type === "main_frame"){
-          // otherwise hangouts and google apps fails
-          return true;
-        }
+        } 
         else{
           console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
           return false;
         }
       }
     }
-    console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
-    return false;
+    console.erro("[Request]");
+    //console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
+    //return false;
     //
 }
 //
@@ -194,7 +190,8 @@ chrome.webRequest.onBeforeRequest.addListener(
   function(info){ 
     //console.info(`${info.method} ENABLED- ${info.type} : ${info.url}\n`);
     if(policies_array[6]){
-      console.info(`${info.method} ENABLED- ${info.type} : ${info.url}`);
+      //console.info(`${info.method} ENABLED- ${info.type} : ${info.url}`);
+      return{cancel:false};
     }
     else{  
       // request.domain is the page address
