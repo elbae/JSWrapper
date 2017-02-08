@@ -106,8 +106,15 @@ var printMap = function(){
 function checkUrls(req){
     //same url
     if(req.url.startsWith("chrome-extension://")){
-      console.log(req.type);
-      return false;
+      //console.log(req.url+": "+req.type);
+      return true;
+    }
+    else if(req.url.startsWith("https://www.google.com/recaptcha/") ||
+      req.url.startsWith("https://wu.client.hip.live.com/GetHIPData?") ||
+      req.url.startsWith("https://ip.wut.smartscreen.microsoft.com/WUTIPv6Service.svc") ||
+      req.url.startsWith(" https://www.gstatic.com/recaptcha")){
+      console.info(`${req.method} %c enabled - ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
+      return true;
     }
     else{
       var splitted_url =request_domain.split('/');
@@ -144,6 +151,7 @@ function checkUrls(req){
         } 
         else{
           console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
+          console.log(req);
           return false;
         }
       }
