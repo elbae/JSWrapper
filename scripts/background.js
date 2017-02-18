@@ -117,7 +117,9 @@ function logMEl(value, key, map) {
 
 }
 var printMap = function(){
+  console.info("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*");
   url_log_list.forEach(logMEl);
+  console.info("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*");
   /*
   console.log("max_cookie_read [%s] : %s",max_cookie_read,max_cookie_read_url);
   console.log("max_cookie_write [%s] : %s",max_cookie_write,max_cookie_write_url);
@@ -337,6 +339,13 @@ try{
         }
         else{
             console.info("[*] Content changed without reloading page [*] ")
+            // devo creare un entry e metterci il valore appena loggato
+            var tmp_array = new Array(5);
+            tmp_array = [0,0,0,0,0];
+            tmp_array[log_event]=1;
+            var tmp_array_string = JSON.stringify(tmp_array);
+            url_log_list.set(log_domain,tmp_array_string);
+            refreshBadge();
             console.log("From %s to %s",last_domain,log_domain);            
         }
         /*

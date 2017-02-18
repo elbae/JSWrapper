@@ -246,6 +246,7 @@
 						    	}
 							  	let log2 = document.getElementById('jswrapper-log2');
 							  	log2.value = parseInt(log2.value)+1;
+							  	return "";
 							    },
 						    set: function(val) {
 						    	if(window["cookie_write_notice"]){
@@ -275,6 +276,7 @@
 						    	}
 							  	let log2 = document.getElementById('jswrapper-log2');
 							  	log2.value = parseInt(log2.value)+1;
+							  	return "";
 						    },
 						    set: function(val) {
 						    	old_cookie.set.call(document,val);
