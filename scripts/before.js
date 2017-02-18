@@ -305,6 +305,7 @@ var includeScripts = function () {
 						    	}
 							  	let log2 = document.getElementById('jswrapper-log2');
 							  	log2.value = parseInt(log2.value)+1;
+							  	return "";
 							    },
 						    set: function(val) {
 						    	if(window["cookie_write_notice"]){
@@ -334,6 +335,7 @@ var includeScripts = function () {
 						    	}
 							  	let log2 = document.getElementById('jswrapper-log2');
 							  	log2.value = parseInt(log2.value)+1;
+							  	return "";
 						    },
 						    set: function(val) {
 						    	old_cookie.set.call(document,val);
@@ -515,7 +517,7 @@ var includeScripts = function () {
 					console.error(error);
 				}
 			}			
-				
+			
 `;
 //console.log(`%c[B] %c End with policies : mm:ss:mmm ${getTime()}`,'color:purple','color:black');
 }
