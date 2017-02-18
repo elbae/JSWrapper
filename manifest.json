@@ -18,7 +18,7 @@
   "browser_action": 
   {
     "default_icon" : {
-      "16" : "images/icon.png"      
+      "16" : "images/icon2.png"      
     },
     "default_title": "Make this page safe",
     "default_popup": "html/popup.html"
