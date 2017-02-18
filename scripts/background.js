@@ -28,18 +28,24 @@ window.onbeforeunload = function(e) {
 
 'use strict';
 
-var debug=true;
+// var debug=true;
+// boolean array, 10 elements, includes policies
 var policies_array = new Array();
+// flag for external connections
 var ext_comm = true;
-var request_domain = "";
+// url received from Before.js with log-event-url, used in clear-logs and log-event
+var last_domain ="";
+// url from last external request enabled received, used while checking
+var actual_domain = "";
+// logs
 var log1=0;
 var log2=0;
 var log3=0;
 var log4=0;
 var log5=0;
-
+// structure with the blocked values per url
 var url_log_list = new Map()
-var last_domain ="";
+/*
 var max_cookie_read_url ="";
 var max_cookie_read=0;
 var max_cookie_write_url="";
@@ -50,8 +56,8 @@ var total_cookie_read=0;
 var total_cookie_write=0;
 var total_eval=0;
 var stat_parsed=0;
-
-
+*/
+/*
 if(!debug){
   console.log = function(text){
     return;
@@ -66,7 +72,29 @@ if(!debug){
     return;
   }
 }
+*/
+function refreshBadge(){
+  chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
+    if(tabs !== undefined && tabs.length > 0){
+      var url = tabs[0].url;
+      if(url_log_list.has(url)){
+        let tmp_array = JSON.parse(url_log_list.get(url));
+        let sum = tmp_array[0]+tmp_array[1]+tmp_array[2]+tmp_array[3]+tmp_array[4];
+        if(sum <= 9999){
+          chrome.browserAction.setBadgeText({text: `${sum}`});
+        }
+        else{
+          chrome.browserAction.setBadgeText({text: `${"9999+"}`});
+        }
+      }
+      else{
+        chrome.browserAction.setBadgeText({text: `${0}`});
+      }
+    }            
+  });
+}
 function logMEl(value, key, map) {
+  /*
   stat_parsed = stat_parsed+1;
   let lsv = JSON.parse(value);
   if(lsv[1] > max_cookie_read){
@@ -84,11 +112,13 @@ function logMEl(value, key, map) {
   total_cookie_read = total_cookie_read + lsv[1];
   total_cookie_write = total_cookie_write + lsv[2];
   total_eval = total_eval +lsv[4];
+  */
   console.log('%s | %s',key,value);
 
 }
 var printMap = function(){
   url_log_list.forEach(logMEl);
+  /*
   console.log("max_cookie_read [%s] : %s",max_cookie_read,max_cookie_read_url);
   console.log("max_cookie_write [%s] : %s",max_cookie_write,max_cookie_write_url);
   console.log("max_eval [%s] : %s",max_eval,max_eval_url);
@@ -96,6 +126,7 @@ var printMap = function(){
   console.log("avg cookie read [%s] ",total_cookie_read/stat_parsed);
   console.log("avg cookie write [%s] ",total_cookie_write/stat_parsed);
   console.log("avg eval use [%s] ",total_eval/stat_parsed);
+  */
   /* statistiche
   - media cookie letti, media cookie scritti, media eval
   - max cookie letti, max cookie scritti, max eval
@@ -112,12 +143,14 @@ function checkUrls(req){
     else if(req.url.startsWith("https://www.google.com/recaptcha/") ||
       req.url.startsWith("https://wu.client.hip.live.com/GetHIPData?") ||
       req.url.startsWith("https://ip.wut.smartscreen.microsoft.com/WUTIPv6Service.svc") ||
-      req.url.startsWith(" https://www.gstatic.com/recaptcha")){
+      req.url.startsWith("https://www.gstatic.com/") ||
+      req.url.startsWith("https://ssl.gstatic.com") ||
+      req.url.startsWith(" https://lh3.googleusercontent.com")){
       console.info(`${req.method} %c enabled - ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
       return true;
     }
     else{
-      var splitted_url =request_domain.split('/');
+      var splitted_url =actual_domain.split('/');
       var splitted_req_url = (req.url).split('/');
       var first_url = splitted_url[0]+"//"+splitted_url[2]
       var second_url = splitted_req_url[0]+'//'+splitted_req_url[2]
@@ -150,7 +183,9 @@ function checkUrls(req){
           return true;
         } 
         else{
-          console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
+          console.info(`${req.method} %cdisabled- ${req.type} : `,"color: red");
+          console.log(`%c${decodeURI(req.url)}`,"color: red");
+          console.log(`[current url:] ${first_url}`);
           console.log(req);
           return false;
         }
@@ -227,38 +262,84 @@ try{
   chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
       /*
-        Action by request.action
+      disable-extcomm: sent by After.js content script once a password field has been focused or changed its value.
       */
       if(request.action === "disable-extcomm"){
         ext_comm = false;
         console.log(`%c[DISABLE]%c ${request.action} - from %c${request.domain} `,"color:red","color:black","color: green");
       }
       else if(request.action === "enable-extcomm"){
+        /*
+        enable-extcomm: sent by Before.js content script, checking if the sender is the active tab in the browser
+        */
         if(sender.hasOwnProperty('tab')){
           if(sender.tab.hasOwnProperty('active')){
             ext_comm = true;
-            request_domain = request.domain;
+            actual_domain = request.domain;
             //console.log(`${request.action} - from %c${request.domain} `,"color: green");
-            console.log("Actual URL: %c%s","color:blue",request_domain);
+            console.log("%c%s","color:blue",actual_domain);
           }
         }        
       }
       else if(request.action === "generic-error"){
+        /*
+        generic-error: printing an error.
+        */
         console.error(`[ERROR] : `);
         console.error(request);
         console.error(sender);
       }
       else if(request.action === "load-policies"){
+        /*
+        load-policies:  sent by Before.js, reply with the policies array stringified
+        */
         sendResponse({policies: JSON.stringify(policies_array)});
       }
       else if(request.action === "save-policies"){
+        /*
+        save-policies: sent by After.js content script, policies are saved in the sync storage
+        */
         policies_array = JSON.parse(request.policies);
         console.log(`[${request.action}]  -> ${policies_array}`);
         chrome.storage.sync.set({'policies': request.policies});
       }
       else if(request.action === "log-event"){
-        //console.log(request);
+        /*
+        event : event's id
+        value : actual value of the log
+        domain : the url, can be a url or the "last" string if it is a frame
+        */
         // posso avere domain last e allora uso last, oppure domain normale
+        // ho appena eliminato l'uso di last
+
+        let log_event = parseInt(request.event)-1;
+        //let log_value = request.value;
+        let log_domain = request.domain;
+        if(url_log_list.has(log_domain) === true){
+          var tmp_array = JSON.parse(url_log_list.get(log_domain));
+          var tmp_array_string;
+          console.log(log_domain + " : "+log_event);
+          switch(log_event){
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+              tmp_array[log_event] = tmp_array[log_event] + 1;
+              break;
+            default:
+              console.error(request);
+              break;
+          }
+          tmp_array_string = JSON.stringify(tmp_array);
+          url_log_list.set(log_domain,tmp_array_string);
+          refreshBadge();
+        }
+        else{
+            console.info("[*] Content changed without reloading page [*] ")
+            console.log("From %s to %s",last_domain,log_domain);            
+        }
+        /*
         let local_domain ="";
         // checking the domain
         if(request.domain === "last"){
@@ -277,6 +358,7 @@ try{
             let local_array = JSON.parse(url_log_list.get(last_domain));
             var local_array_string;
             let local_id = parseInt(request.event) - 1;
+            console.log(last_domain + " : "+request.event)
             switch(local_id){
               case 0:
               case 1:
@@ -289,6 +371,45 @@ try{
                 console.error(request);
                 break;
             }
+            chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
+              try{ 
+                if(tabs !== undefined && tabs.length > 0){
+                  //console.log(tabs);
+                  var url = tabs[0].url;
+                  if(url === last_domain){
+                    //console.log(url +"==="+last_domain);
+                    let sum = local_array[0]+local_array[1]+local_array[2]+local_array[3]+local_array[4];
+                    if(sum <= 9999){
+                      chrome.browserAction.setBadgeText({text: `${sum}`});
+                    }
+                    else{
+                      chrome.browserAction.setBadgeText({text: `${"9999+"}`});
+                    }
+                  }
+                  else{
+                    if(url_log_list.has(url)){
+                      let jstring = url_log_list.get(url);
+                      let jarr = JSON.parse(jstring);
+                      let sum = jarr[0]+jarr[1]+jarr[2]+jarr[3]+jarr[4];
+                      if(sum <= 9999){
+                        chrome.browserAction.setBadgeText({text: `${sum}`});
+                      }
+                      else{
+                        chrome.browserAction.setBadgeText({text: `${"9999+"}`});
+                      }
+                    }
+                    else{
+                      chrome.browserAction.setBadgeText({text: `${0}`});
+                    }
+                  }
+                  
+                }
+              }
+              catch(error){
+                console.info(error);
+              }
+            });
+            
             local_array_string = JSON.stringify(local_array);
             url_log_list.set(last_domain,local_array_string);
           }
@@ -297,19 +418,40 @@ try{
             console.log("From %s to %s",last_domain,local_domain);            
           }
         }
+        */
       }
       else if(request.action === "clear_logs"){
+      /*
+        clear_logs: sent by After.js if it is running in the top frame, logging the first data blocked by the extension
+      */
         // received from after.js
           //console.log("clear "+request.domain +"| "+request.data);
           //console.log("last domain "+last_domain);
           //console.log("request domain"+request.domain);
           //console.log("data "+request.data);
           // because it is already in last_domain 
+          console.log("[CLEAR]: %s|%s",last_domain,request.data);
           url_log_list.set(last_domain,request.data);
+          //console.log(last_domain + " : "+request.data)
       }
       else if(request.action === "log-event-url"){ 
-        // before.js sends its top url 
+      /*
+      log-event-url: sent by Before.js, sends its url
+      */
         last_domain = request.domain;
+      }
+      else if(request.action === "refresh-badge"){
+        /*let jstring = url_log_list.get(request.url);
+        let jarr = JSON.parse(jstring);
+        let sum = jarr[0]+jarr[1]+jarr[2]+jarr[3]+jarr[4];
+        if(sum <= 9999){
+          chrome.browserAction.setBadgeText({text: `${sum}`});
+        }
+        else{
+          chrome.browserAction.setBadgeText({text: `${"9999+"}`});
+        }
+        */
+        refreshBadge()
       }
       else{
         console.error(`What is ${request.action}?`);

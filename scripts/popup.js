@@ -1,6 +1,8 @@
 'use strict';
 var PopupController = function () {
   this.button_ = document.getElementById('bt_reload');
+  this.button_enable = document.getElementById('bt_enable');
+  this.button_disable = document.getElementById('bt_disable');
   this.check_ui = document.getElementsByName('check_ui')[0];
   this.setValues();
   this.addCheckListeners();
@@ -41,22 +43,48 @@ PopupController.prototype = {
   },
   addCheckListeners: function () {
     this.button_.addEventListener('click', this.handleClick_.bind(this));
+    this.button_enable.addEventListener('click', this.handleClick_enable.bind(this));
+    this.button_disable.addEventListener('click', this.handleClick_disable.bind(this));
     var i=0;
     var input_list = document.getElementsByTagName('input');
     for(i=0;i<input_list.length;i++){
       input_list[i].addEventListener('change',this.saveValues.bind(this));  
     }  
   },
-  sendReloadMessage:function(){
+  /*sendReloadMessage:function(){
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       chrome.tabs.sendMessage(tabs[0].id, {action:'reload-page'}, function(response) {
       });
     });
-  },
+  },*/
   handleClick_: function () {    
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
     });
+  },
+  handleClick_enable: function () {    
+    var background_window = chrome.extension.getBackgroundPage();
+    var policies_array = [true, true, true, true, true, true, true, true, true, true]
+    background_window.policies_array = policies_array;
+    var ext_list = JSON.stringify(policies_array);
+    chrome.storage.sync.set({'policies': ext_list},function(){
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
+      });
+    });
+    this.setValues();
+  },
+  handleClick_disable: function () {     
+    var background_window = chrome.extension.getBackgroundPage();
+    var policies_array = [false, false, false, false, false, false, false, false, false, false];
+    background_window.policies_array = policies_array;
+    var ext_list = JSON.stringify(policies_array);
+    chrome.storage.sync.set({'policies': ext_list},function(){
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
+      });
+    });
+    this.setValues();
   },
   updateValues : function(){
     let background_window = chrome.extension.getBackgroundPage(); 
@@ -89,5 +117,5 @@ PopupController.prototype = {
 
 document.addEventListener('DOMContentLoaded', function () {
   window.PC = new PopupController();  
-  window.setInterval(function(){window.PC.updateValues();}, 250);
+  window.setInterval(function(){window.PC.updateValues();}, 500);
 });

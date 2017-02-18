@@ -195,7 +195,7 @@ var includeScripts = function () {
 					  		window["ui_notice"] = false;
 					    	console.log('UI DISABLED');
 					  	}
-					  	let log1 = document.getElementById('log1');
+					  	let log1 = document.getElementById('jswrapper-log1');
 					  	log1.value = parseInt(log1.value)+1;
 					  }
 					});
@@ -217,7 +217,7 @@ var includeScripts = function () {
 					  		window["ui_notice"] = false;
 					    	console.log('UI DISABLED');
 					  	}
-					  	let log1 = document.getElementById('log1');
+					  	let log1 = document.getElementById('jswrapper-log1');
 					  	log1.value = parseInt(log1.value)+1;
 					  }
 					});
@@ -239,7 +239,7 @@ var includeScripts = function () {
 					  		window["ui_notice"] = false;
 					    	console.log('UI DISABLED');
 					  	}
-					  	let log1 = document.getElementById('log1');
+					  	let log1 = document.getElementById('jswrapper-log1');
 					  	log1.value = parseInt(log1.value)+1;
 					  }
 					});
@@ -261,7 +261,7 @@ var includeScripts = function () {
 					  		window["ui_notice"] = false;
 					    	console.log('UI DISABLED');
 					  	}
-					  	let log1 = document.getElementById('log1');
+					  	let log1 = document.getElementById('jswrapper-log1');
 					  	log1.value = parseInt(log1.value)+1;
 					  }
 					});
@@ -303,7 +303,7 @@ var includeScripts = function () {
 						    		window["cookie_read_notice"]=false;
 					        	console.log('READ COOKIE DISABLED for '+location );		        
 						    	}
-							  	let log2 = document.getElementById('log2');
+							  	let log2 = document.getElementById('jswrapper-log2');
 							  	log2.value = parseInt(log2.value)+1;
 							    },
 						    set: function(val) {
@@ -311,7 +311,7 @@ var includeScripts = function () {
 						    		window["cookie_write_notice"]=false;
 					        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 						    	}
-						    	let log3 = document.getElementById('log3');
+						    	let log3 = document.getElementById('jswrapper-log3');
 							  	log3.value = parseInt(log3.value)+1;
 						    }
 						});			
@@ -332,7 +332,7 @@ var includeScripts = function () {
 						    		window["cookie_read_notice"]=false;
 					        	console.log('READ COOKIE DISABLED for '+location );		        
 						    	}
-							  	let log2 = document.getElementById('log2');
+							  	let log2 = document.getElementById('jswrapper-log2');
 							  	log2.value = parseInt(log2.value)+1;
 						    },
 						    set: function(val) {
@@ -359,7 +359,7 @@ var includeScripts = function () {
 						    		window["cookie_write_notice"]=false;
 					        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 						    	}
-							  	let log3 = document.getElementById('log3');
+							  	let log3 = document.getElementById('jswrapper-log3');
 							  	log3.value = parseInt(log3.value)+1;
 						    }
 						});			
@@ -405,7 +405,7 @@ var includeScripts = function () {
 					  		window["document_write_notice"]=false;
 					    	console.log('DOCUMENT WRITE DISABLED for '+location );	
 					  	}
-					  	let log4 = document.getElementById('log4');
+					  	let log4 = document.getElementById('jswrapper-log4');
 					  	log4.value = parseInt(log4.value)+1;
 					    //return undefined;
 					  }
@@ -501,7 +501,7 @@ var includeScripts = function () {
 				    		window["eval_notice"]=false;
 				      	console.log('EVAL DISABLED for '+location );	
 				    	}
-					  	let log5 = document.getElementById('log5');
+					  	let log5 = document.getElementById('jswrapper-log5');
 					  	log5.value = parseInt(log5.value)+1;
 					  }
 					});
@@ -515,7 +515,7 @@ var includeScripts = function () {
 					console.error(error);
 				}
 			}			
-			
+				
 `;
 //console.log(`%c[B] %c End with policies : mm:ss:mmm ${getTime()}`,'color:purple','color:black');
 }
@@ -531,25 +531,13 @@ var includeScripts = function () {
 */
 var names = ["","window-event","cookie-read","cookie-write","document-write","eval"];
 for(count=1;count<6;count++){
-	window[`log${count}`] =document.createElement("input");
-	window[`log${count}`].type="hidden";
-	window[`log${count}`].value=0;
-	window[`log${count}`].name=names[count];
-	window[`log${count}`].id=`log${count}`;
-	document.documentElement.appendChild(window[`log${count}`]);
+	window[`jswrapper-log${count}`] =document.createElement("input");
+	window[`jswrapper-log${count}`].type="hidden";
+	window[`jswrapper-log${count}`].value=0;
+	window[`jswrapper-log${count}`].name=names[count];
+	window[`jswrapper-log${count}`].id=`jswrapper-log${count}`;
+	document.documentElement.appendChild(window[`jswrapper-log${count}`]);
 }
-/*
-var log1 = document.createElement("input"); log1.type="hidden"; log1.value=0; log1.name="window-event"; log1.id="log1"; //cookie read
-var log2 = document.createElement("input"); log2.type="hidden"; log2.value=0; log2.name="cookie-read"; log2.id="log2";//cookie write
-var log3 = document.createElement("input"); log3.type="hidden"; log3.value=0; log3.name="cookie-write"; log3.id="log3";//document write
-var log4 = document.createElement("input"); log4.type="hidden"; log4.value=0; log4.name="document-write"; log4.id="log4";//eval
-var log5 = document.createElement("input"); log5.type="hidden"; log5.value=0; log5.name="eval"; log5.id="log5";//eval
-document.documentElement.appendChild(log1)	;
-document.documentElement.appendChild(log2)	;
-document.documentElement.appendChild(log3)	;
-document.documentElement.appendChild(log4)	;
-document.documentElement.appendChild(log5)	;*/
-
 if(isFrame){	
 	chrome.runtime.sendMessage({action:"load-policies", domain:document.domain}, function(response){
 		try{
@@ -589,7 +577,7 @@ else{
 
 /*
 	Setting message listener for re
-*/
+
 try{
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		if(request.action === 'reload-page'){
@@ -601,19 +589,20 @@ catch(error){
 	console.error(`%c[B] %c error : reload listener`,'color:purple','color:black');
 	console.error(error);
 }
-
+*/
 /*
 	Functions which creates the policies array initializing it to false*10
 */
-var createCustom = function(){
+/*var createCustom = function(){
 	policy_array = new Array(10);
 	for(count=0;count<10;count++){
 		policy_array[count]=false;
 	}
-}
+}*/
 /*
 	Function which loads from the chrome.storage.sync and save into the localStorage
 */
+/*
 var getNReload = function(){
 	try{	
 		var pre = JSON.parse(localStorage.getItem('policies'));
@@ -644,59 +633,4 @@ var getNReload = function(){
 		console.error(error);
 	}
 }
-
-			/*
-			var test = document.createElement('img');
-			console.log(document);
-			document.insertBefore(test,document.head);
-			console.log(document);
-			(document.head||document.documentElement).appendChild(my_script);
-			console.log(document);
-			my_script.parentNode.removeChild(my_script);
-			*/
-
-
-
-/* 
-	Main part of the contentScript
-*/
-/*
-try{
-	retrieved = localStorage.getItem('policies');
-	if(retrieved!==null){
-		policy_array = JSON.parse(retrieved);
-		for(count=0;count<10;count++){
-			if(typeof policy_array[count] !== "boolean"){
-				createCustom();
-				break;
-			}
-		}		
-	}
-	else{
-		createCustom();
-	}
-}
-catch(error){
-	console.error(error);
-	createCustom();
-}
-includeScripts();
-getNReload();
-*/
-
-
-
-
-//console.log(`%c[B] %c End without policies: mm:ss:mmm ${getTime()}`,'color:purple','color:black');
-
-/*
-TODO MODIFICHE
-- come faccio ora risolvo il problema dello script caricato nell'head della pagina 
-che può rompere quello che wrappo
-
-posso fare che il primo colpo 
-
-devo ritornare a come prima che carico lo script nell'header
-mando messaggio e aspetto la risposta
-quando ho la risposta popolo il tag script
 */
