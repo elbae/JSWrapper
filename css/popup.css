@@ -91,7 +91,9 @@ input:checked + .slider:before {
 button{
 	position: relative;
 	display: block;
-	left: 18%;
+	left: 10%;
+  right: 10%;
+  width: 160px;
 	top:5px;
 	font-size: 15px;
 	color:black;
