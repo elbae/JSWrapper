@@ -17,7 +17,6 @@ if(window === window.top){
   }
   var tmp_string = JSON.stringify(new Array(lt1,lt2,lt3,lt4,lt5));
   chrome.runtime.sendMessage({action:"clear_logs",domain:log_url,data:tmp_string}, function(){});
-
 }
 else{
   log_url = (window.location != window.parent.location)? document.referrer: document.location.href;

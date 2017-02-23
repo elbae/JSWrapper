@@ -137,66 +137,64 @@ var printMap = function(){
 }
 //check urls in order to enable or disable connection
 function checkUrls(req){
-    //same url
-    if(req.url.startsWith("chrome-extension://")){
-      //console.log(req.url+": "+req.type);
-      return true;
-    }
-    else if(req.url.startsWith("https://www.google.com/recaptcha/") ||
-      req.url.startsWith("https://wu.client.hip.live.com/GetHIPData?") ||
-      req.url.startsWith("https://ip.wut.smartscreen.microsoft.com/WUTIPv6Service.svc") ||
-      req.url.startsWith("https://www.gstatic.com/") ||
-      req.url.startsWith("https://ssl.gstatic.com") ||
-      req.url.startsWith(" https://lh3.googleusercontent.com")){
-      console.info(`${req.method} %c enabled - ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
-      return true;
-    }
-    else{
-      var splitted_url =actual_domain.split('/');
-      var splitted_req_url = (req.url).split('/');
-      var first_url = splitted_url[0]+"//"+splitted_url[2]
-      var second_url = splitted_req_url[0]+'//'+splitted_req_url[2]
-
-      // request and url are in the same domain
-      // -> everything is enabled
-      if(first_url === second_url){
-          //console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
-          console.log("[%s] : %s",req.type,req.url);
-          return true;        
-        /*if(req.method === "POST" || req.method === "GET"){
-          console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
-          return true;
-        }
-        else{
-          if(req.type === "stylesheet" ){
-            console.info(`${req.method} ENABLED- ${req.type} : ${req.url}\n[current url:] ${first_url} `);
-            return true;
-          }
-          else{
-            console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
-            return false;
-          }
-        }*/
-      }// request and url are in different domains
-      else{
-        // css request are enabled
-        if(req.type === "main_frame" || req.type === "sub_frame" || req.type === "stylesheet" || req.type === "script" || req.type === "font"){
-          console.log("[%s] : %s",req.type,req.url);
-          return true;
-        } 
-        else{
-          console.info(`${req.method} %cdisabled- ${req.type} : `,"color: red");
-          console.log(`%c${decodeURI(req.url)}`,"color: red");
-          console.log(`[current url:] ${first_url}`);
-          console.log(req);
-          return false;
-        }
-      }
-    }
-    console.erro("[Request]");
-    //console.info(`${req.method} %cdisabled- ${req.type} : ${req.url}\n[current url:] ${first_url} `,"color: red");
-    //return false;
-    //
+  /*
+  EDIT 21/02/2017
+  What should be enabled by default:
+  - request to url "chrome-extension://*"
+  - request with type main_frame
+  - request with url in the whitelist
+  When ext_com is false the checks are in this order:
+  - url for extension, simply enabled 
+  - main_frame, enabled and set ext_com to true
+  - whitelist site, enabled and log that is enabled
+  - any other request is blocked
+  */
+  /* first check url chrome-extension */
+  if(req.url.startsWith("chrome-extension://")){
+    return true;
+  }
+  /* second check main_frame */
+  if(req.type === "main_frame"){
+    console.log("[%s] : %s",req.type,req.url);
+    ext_comm = true;
+    return true;
+  }
+  /* third check whitelisted url */
+  if(req.url.startsWith("https://www.google.com/recaptcha/") ||
+    req.url.startsWith("https://wu.client.hip.live.com/GetHIPData?") ||
+    req.url.startsWith("https://ip.wut.smartscreen.microsoft.com/WUTIPv6Service.svc") ||
+    req.url.startsWith("https://www.gstatic.com/") ||
+    req.url.startsWith("https://ssl.gstatic.com") ||
+    req.url.startsWith(" https://lh3.googleusercontent.com") ||
+    req.url.startsWith("https://www.google.com/js") ||
+    req.url.startsWith("https://fonts.gstatic.com")){
+    console.info(`${req.method} %c WHITELISTED - ${req.type} : ${req.url}\n[current url:] ${actual_domain} `,"color: purple");
+    return true;
+  }
+  /* fourth check, same url */
+  let splitted_url =actual_domain.split('/');
+  let splitted_req_url = (req.url).split('/');
+  let first_url = splitted_url[0]+"//"+splitted_url[2]
+  let second_url = splitted_req_url[0]+'//'+splitted_req_url[2]
+  if(first_url === second_url){
+    console.log("[%s %s], [%s] === actual[%s]",req.method,req.type,first_url,req.url);
+    return true;
+  }
+  /* fifth check, login.yahoo.com === auth.yahoo.com */
+  let first_dot_splitted = first_url.split('.');
+  let second_dot_splitted = second_url.split('.');
+  if(first_dot_splitted[1]===second_dot_splitted[1]){
+    console.log("[%s %s], [%s] === actual[%s]",req.method,req.type,first_url,req.url);
+    return true;
+  }
+  /* end of checks, request disabled */
+  console.info(`${req.method} ${req.type} %c DISABLED  : `,"color: red");
+  let print_url = req.url;
+  console.log(`%c${print_url}`,"color: red");
+  console.log(`%c${decodeURI(print_url)}`,"color: red");
+  console.log(`[current url:] ${first_url}`);
+  console.log(req);
+  return false;
 }
 //
 console.info(`Start`);
