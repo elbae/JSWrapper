@@ -21,11 +21,11 @@
       "16" : "images/icon2.png"      
     },
     "default_title": "Make this page safe",
-    "default_popup": "html/popup.html"
+    "default_popup": "html/Popup.html"
   },
   "background":{ 
     "scripts": [
-      "scripts/background.js"
+      "scripts/Background.js"
     ]
   },
   "content_scripts":
@@ -34,14 +34,14 @@
       "matches": ["<all_urls>"],
       "run_at": "document_start",
       "all_frames": true,
-      "js":  ["scripts/before.js"],
+      "js":  ["scripts/Before.js"],
       "match_about_blank":true
     },
     {
       "matches": ["<all_urls>"],
       "run_at": "document_end",
       "all_frames": true,
-      "js":  ["scripts/after.js"],
+      "js":  ["scripts/After.js"],
       "match_about_blank":true
     }
   ] 
