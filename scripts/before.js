@@ -7,10 +7,10 @@ var custom_head;	// Node element for the custom head
 var custom_script;// Script element for the custom script
 var count=0;			// Int counter variable for loops
 var retrieved; 		// A string variable
-var isFrame;
-
+var isFrame;			// A boolean variable used to check if the execution is on the main frame or inside a subframe
+var names = ["","window-event","cookie-read","cookie-write","document-write","eval"]; // names used in the log
 /*
-	Function which gets the time from a Date object
+	@description Function which gets the time from a Date object
 */
 function getTime(){
   var d = new Date();
@@ -18,28 +18,17 @@ function getTime(){
   //return time;
   return "";
 }
-console.log('%c[B] %c Start : %s %c%s','color:purple','color:black',getTime(),'color: green',document.domain);
+
+//console.log('%c[B] %c Start : %s %c%s','color:purple','color:black',getTime(),'color: green',document.domain);
 
 isFrame = (window!==window.top);
-// Code running in a Chrome extension (content script, background page, etc.)
 
-/* 
-	Creation of the custom head and custom script tags
-*/
-/*
-custom_head = document.createElement('head');
-(document.head || document.documentElement).appendChild(custom_head);
-custom_script = document.createElement('script');
-custom_script.setAttribute("type","text/javascript");
-custom_head.appendChild(custom_script);
-*/
 /* 
 	Immediately asks for enabling connection
 */
 if(!isFrame){
 	try{
 		chrome.runtime.sendMessage({action:"enable-extcomm", domain:location.origin}, function(){});
-	//console.log(`%c[B] %c asks for enable external requests at ${getTime()}`,'color:purple','color:black');
 	}
 	catch(e){
 		alert('Error on chrome.runtime.sendMessage - {action:"enable-extcomm"} ');
@@ -52,10 +41,11 @@ if(!isFrame){
 
 */
 /*
-	Functions which creates the custom script tag and place it under the head
+	@callback Policies request callback
+	@description Functions which creates the custom script tag and place it under the head
 */
 var includeScripts = function () {
-		console.log('%c[B] %c Policies used %s','color:purple','color:black',JSON.stringify(policy_array));
+		//console.log('%c[B] %c Policies used %s','color:purple','color:black',JSON.stringify(policy_array));
 		custom_script.innerHTML = `
 			'use strict';
 			/* 
@@ -522,117 +512,58 @@ var includeScripts = function () {
 //console.log(`%c[B] %c End with policies : mm:ss:mmm ${getTime()}`,'color:purple','color:black');
 }
 
-/*
-
-
-
-
-*/
 /* 
-	Asks for policies to background, parse the response, load the script with the policies
+	Main function,
+	1 - creates the element used to log the blocked execution requests, one per log name
+	2 - checks if executing inside a frame or in the global environment 
+	3 - MAIN_FRAME: 
+			- loads the policies and sends the domain
+			- creates the false <head><script></script></head> tags
+			- includes the script content
+		- SUB_FRAME:
+			TODO -> differentiation: at this time we execute the same actions
 */
-var names = ["","window-event","cookie-read","cookie-write","document-write","eval"];
-for(count=1;count<6;count++){
-	window[`jswrapper-log${count}`] =document.createElement("input");
-	window[`jswrapper-log${count}`].type="hidden";
-	window[`jswrapper-log${count}`].value=0;
-	window[`jswrapper-log${count}`].name=names[count];
-	window[`jswrapper-log${count}`].id=`jswrapper-log${count}`;
-	document.documentElement.appendChild(window[`jswrapper-log${count}`]);
-}
-if(isFrame){	
-	chrome.runtime.sendMessage({action:"load-policies", domain:document.domain}, function(response){
-		try{
-			policy_array = JSON.parse(response.policies);
-			custom_head = document.createElement('head');
-			//(document.head || document.documentElement).appendChild(custom_head);
-			document.documentElement.insertBefore(custom_head,document.head);
-			custom_script = document.createElement('script');
-			custom_script.setAttribute("type","text/javascript");
-			custom_head.appendChild(custom_script);
-			includeScripts();
-			console.log(`%c[B] %c Frame with policies`,'color:purple','color:black');
-		}
-		catch(e){
-			console.error(e);
-		}
-	});
-}
-else{
-	chrome.runtime.sendMessage({action:"load-policies", domain:location.href}, function(response){
-		try{
-			policy_array = JSON.parse(response.policies);
-			custom_head = document.createElement('head');
-			//(document.head || document.documentElement).appendChild(custom_head);
-			document.documentElement.insertBefore(custom_head,document.head);
-			custom_script = document.createElement('script');
-			custom_script.setAttribute("type","text/javascript");
-			custom_head.appendChild(custom_script);
-			includeScripts();
-			console.log(`%c[B] %c with policies : mm:ss:mmm ${getTime()}`,'color:purple','color:black');
-		}
-		catch(e){
-			console.error(e);
-		}
-	});
-}
-
-/*
-	Setting message listener for re
-
-try{
-	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-		if(request.action === 'reload-page'){
-			window.location.reload();
-		}	    
-	});
-}
-catch(error){
-	console.error(`%c[B] %c error : reload listener`,'color:purple','color:black');
-	console.error(error);
-}
-*/
-/*
-	Functions which creates the policies array initializing it to false*10
-*/
-/*var createCustom = function(){
-	policy_array = new Array(10);
-	for(count=0;count<10;count++){
-		policy_array[count]=false;
+var main = function(){
+	for(count=1;count<names.length;count++){
+		window[`jswrapper-log${count}`] =document.createElement("input");
+		window[`jswrapper-log${count}`].type="hidden";
+		window[`jswrapper-log${count}`].value=0;
+		window[`jswrapper-log${count}`].name=names[count];
+		window[`jswrapper-log${count}`].id=`jswrapper-log${count}`;
+		document.documentElement.appendChild(window[`jswrapper-log${count}`]);
 	}
-}*/
-/*
-	Function which loads from the chrome.storage.sync and save into the localStorage
-*/
-/*
-var getNReload = function(){
-	try{	
-		var pre = JSON.parse(localStorage.getItem('policies'));
-		var post;
-		chrome.storage.sync.get('policies', function(result) {		
-			console.log('%c[B] %c Policies waiting at %s','color:purple','color:black',getTime());
-			if(result.policies === undefined){
-				chrome.storage.sync.set('policies',JSON.stringify(pre),function(){});
-				console.log('%c[B] %c Policies created','color:purple','color:black');
+	if(isFrame){	
+		chrome.runtime.sendMessage({action:"load-policies", domain:document.domain}, function(response){
+			try{
+				policy_array = JSON.parse(response.policies);
+				custom_head = document.createElement('head');
+				document.documentElement.insertBefore(custom_head,document.head);
+				custom_script = document.createElement('script');
+				custom_script.setAttribute("type","text/javascript");
+				custom_head.appendChild(custom_script);
+				includeScripts();
 			}
-	    else{
-	      policy_array = JSON.parse(result.policies);
-	      console.log('%c[B] %c Policies loaded on %c%s %c at %s','color:purple','color:black','color:green',document.domain,'color:black',getTime());
-	    } 
-	    for(count=0;count<10;count++){
-	    	if(pre[count] !== policy_array[count]){
-	    		localStorage.setItem('policies',JSON.stringify(policy_array));
-	    		window.location.reload();
-	    	}
-	    }
-	    localStorage.setItem('policies',JSON.stringify(policy_array));
-			
-	  });
-	  
+			catch(e){
+				console.error(e);
+			}
+		});
 	}
-	catch(error){
-		console.error(`%c[B] %c error : injection`,'color:purple','color:black');
-		console.error(error);
+	else{
+		chrome.runtime.sendMessage({action:"load-policies", domain:location.href}, function(response){
+			try{
+				policy_array = JSON.parse(response.policies);
+				custom_head = document.createElement('head');
+				document.documentElement.insertBefore(custom_head,document.head);
+				custom_script = document.createElement('script');
+				custom_script.setAttribute("type","text/javascript");
+				custom_head.appendChild(custom_script);
+				includeScripts();
+				//console.log(`%c[B] %c with policies : mm:ss:mmm ${getTime()}`,'color:purple','color:black');
+			}
+			catch(e){
+				console.error(e);
+			}
+		});
 	}
 }
-*/
+main()

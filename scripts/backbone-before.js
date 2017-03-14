@@ -9,44 +9,7 @@
 			window["eval_notice"] = false;
 			window["document_write_notice"] = false;
 
-
-			/*
-				creating my own console's functions
-			*/
-			// due to twitter modification of console.log must wrap it
-			// breaks glowingbear.com
-			/*
-			try{
-				if(true){
-					
-					let old_log = console.log;
-					let old_error = console.error;
-					let old_info = console.info;
-
-					var console.log =  new Proxy(function() {}, {
-						apply: function(target, thisArg, argumentsList) {
-							old_log.apply(argumentsList);
-						}
-					});
-					var console.info =  new Proxy(function() {}, {
-						apply: function(target, thisArg, argumentsList) {
-							old_info.apply(argumentsList);
-						}
-					});
-					var console.error =  new Proxy(function() {}, {
-						apply: function(target, thisArg, argumentsList) {
-							old_error.apply(argumentsList);
-						}
-					});
-				  Object.defineProperty(window, 'console.log', {value: console.log,configurable:false,writable:false,enumerable:false});
-				  Object.defineProperty(window, 'console.info', {value: console.info,configurable:false,writable:false,enumerable:false});
-				  Object.defineProperty(window, 'console.error', {value: console.error,configurable:false,writable:false,enumerable:false});
-				}
-			}
-			catch(error){
-				console.error(error);
-			}*/
-			
+			// We do not modify the console logging methods			
 			try
 			{
 				// permission_ui
@@ -134,10 +97,20 @@
 					  apply: function(target, thisArg, argumentsList) {
 					  	if(window["ui_notice"]){
 					  		window["ui_notice"] = false;
-					    	console.log('UI DISABLED');
+					    	try{
+					    		console.log('UI DISABLED');
+					    	}
+					    	catch(error){
+					    		//pass
+					    	}
 					  	}
-					  	let log1 = document.getElementById('jswrapper-log1');
-					  	log1.value = parseInt(log1.value)+1;
+					  	try{
+					  		let log1 = document.getElementById('jswrapper-log1');
+					  		log1.value = parseInt(log1.value)+1;
+					  	}
+					  	catch(error){
+
+					  	}
 					  }
 					});
 					Object.defineProperty(window,'alert',{
@@ -155,11 +128,21 @@
 					var prompt =  new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {
 					  	if(window["ui_notice"]){
-					  		window["ui_notice"] = false;
-					    	console.log('UI DISABLED');
+					  		try{
+					  			window["ui_notice"] = false;
+					    		console.log('UI DISABLED');
+					    	}
+					    	catch(error){
+					    		//pass
+					    	}
 					  	}
-					  	let log1 = document.getElementById('jswrapper-log1');
-					  	log1.value = parseInt(log1.value)+1;
+					  	try{
+						  	let log1 = document.getElementById('jswrapper-log1');
+						  	log1.value = parseInt(log1.value)+1;
+						  }
+						  catch(error){
+						  	//pass
+						  }
 					  }
 					});
 					Object.defineProperty(window,'prompt',{
@@ -177,11 +160,21 @@
 					var confirm =  new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {
 					  	if(window["ui_notice"]){
-					  		window["ui_notice"] = false;
-					    	console.log('UI DISABLED');
+					  		try{
+					  			window["ui_notice"] = false;
+					  			console.log('UI DISABLED');
+					  		}
+					  		catch(error){
+					  			//pass
+					  		}
 					  	}
-					  	let log1 = document.getElementById('jswrapper-log1');
-					  	log1.value = parseInt(log1.value)+1;
+					  	try{
+					  		let log1 = document.getElementById('jswrapper-log1');
+					  		log1.value = parseInt(log1.value)+1;
+					  	}
+					  	catch(error){
+					  		//pass
+					  	}
 					  }
 					});
 					Object.defineProperty(window,'confirm',{
@@ -199,11 +192,22 @@
 					var open =  new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {
 					  	if(window["ui_notice"]){
-					  		window["ui_notice"] = false;
-					    	console.log('UI DISABLED');
+					  		try{
+						  		window["ui_notice"] = false;
+						    	console.log('UI DISABLED');
+						    }
+						    catch(error){
+						    	//pass
+						    }
 					  	}
-					  	let log1 = document.getElementById('jswrapper-log1');
-					  	log1.value = parseInt(log1.value)+1;
+					  	try{
+					  		let log1 = document.getElementById('jswrapper-log1');
+					  		log1.value = parseInt(log1.value)+1;	
+					  	}
+					  	catch(error){
+					  		//pass
+					  	}
+					  	
 					  }
 					});
 					Object.defineProperty(window,'open',{
@@ -241,20 +245,40 @@
 						Object.defineProperty(document, 'cookie', {
 						    get: function() {
 						    	if(window["cookie_read_notice"]){
-						    		window["cookie_read_notice"]=false;
-					        	console.log('READ COOKIE DISABLED for '+location );		        
+						    		try{
+						    			window["cookie_read_notice"]=false;
+					        		console.log('READ COOKIE DISABLED for '+location );		        
+					        	}
+					        	catch(error){
+					        		//pass
+					        	}
 						    	}
-							  	let log2 = document.getElementById('jswrapper-log2');
-							  	log2.value = parseInt(log2.value)+1;
+						    	try{
+								  	let log2 = document.getElementById('jswrapper-log2');
+								  	log2.value = parseInt(log2.value)+1;
+								  }
+								  catch(error){
+
+								  }
 							  	return "";
 							    },
 						    set: function(val) {
 						    	if(window["cookie_write_notice"]){
-						    		window["cookie_write_notice"]=false;
-					        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
+						    		try{
+						    			window["cookie_write_notice"]=false;
+					        		console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
+					        	}
+					        	catch(error){
+					        		//pass
+					        	}
 						    	}
-						    	let log3 = document.getElementById('jswrapper-log3');
-							  	log3.value = parseInt(log3.value)+1;
+						    	try{
+						    		let log3 = document.getElementById('jswrapper-log3');
+							  		log3.value = parseInt(log3.value)+1;
+							  	}
+							  	catch(error){
+							  		//pass
+							  	}
 						    }
 						});			
 				  }
@@ -271,11 +295,21 @@
 						Object.defineProperty(document, 'cookie', {
 						    get: function() {
 						    	if(window["cookie_read_notice"]){
-						    		window["cookie_read_notice"]=false;
-					        	console.log('READ COOKIE DISABLED for '+location );		        
+						    		try{
+							    		window["cookie_read_notice"]=false;
+						        	console.log('READ COOKIE DISABLED for '+location );		        
+						        }
+						        catch(error){
+						        	//pass
+						        }
 						    	}
-							  	let log2 = document.getElementById('jswrapper-log2');
-							  	log2.value = parseInt(log2.value)+1;
+						    	try{
+								  	let log2 = document.getElementById('jswrapper-log2');
+								  	log2.value = parseInt(log2.value)+1;
+								  }
+								  catch(error){
+								  	//pass
+								  }
 							  	return "";
 						    },
 						    set: function(val) {
@@ -299,11 +333,21 @@
 						    },
 						    set: function(val) {
 						    	if(window["cookie_write_notice"]){
-						    		window["cookie_write_notice"]=false;
-					        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
+						    		try{
+							    		window["cookie_write_notice"]=false;
+						        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
+						        }
+						        catch(error){
+						        	//pass
+						        }
 						    	}
-							  	let log3 = document.getElementById('jswrapper-log3');
-							  	log3.value = parseInt(log3.value)+1;
+						    	try{
+								  	let log3 = document.getElementById('jswrapper-log3');
+								  	log3.value = parseInt(log3.value)+1;
+								  }
+								  catch(error){
+								  	//pass
+								  }
 						    }
 						});			
 				  }
@@ -323,11 +367,21 @@
 						// Editing getter and setter 
 						Object.defineProperty(document, 'cookie',{
 					    get: function() {
-					    	console.log('Getting cookie...');
+					    	try{
+					    		console.log('Getting cookie...');
+					    	}
+					    	catch(error){
+					    		//pass
+					    	}
 					      return old_cookie.get.call(document);
 					    },
 					    set: function(value) {
-					    	console.log('Setting cookie...'+value);
+					    	try{
+						    	console.log('Setting cookie...'+value);
+						    }
+						    catch(error){
+						    	//pass
+						    }
 						   	return old_cookie.set.call(document,value);
 					    }
 						});
@@ -345,11 +399,21 @@
 					document.write =  new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {					  			  	
 					  	if(window["document_write_notice"]){
-					  		window["document_write_notice"]=false;
-					    	console.log('DOCUMENT WRITE DISABLED for '+location );	
+					  		try{
+						  		window["document_write_notice"]=false;
+						    	console.log('DOCUMENT WRITE DISABLED for '+location );	
+						    }
+						    catch(error){
+						    	//
+						    }
 					  	}
-					  	let log4 = document.getElementById('jswrapper-log4');
-					  	log4.value = parseInt(log4.value)+1;
+					  	try{
+						  	let log4 = document.getElementById('jswrapper-log4');
+						  	log4.value = parseInt(log4.value)+1;
+						  }
+						  catch(error){
+						  	//pass
+						  }
 					    //return undefined;
 					  }
 					});
@@ -363,18 +427,6 @@
 				 	console.error(error);
 				}
 			}
-			/*
-			Object.getOwnPropertyDescriptor(window,'localStorage');
-			Object.getOwnPropertyDescriptor(window,'sessionStorage');
-			gives:
-			configurable :true
-			true if and only if the type of this property descriptor may be 
-			changed and if the property may be deleted from the corresponding object.
-			writable: false
-			true if and only if the value associated with the property may be 
-			changed with an assignment operator.
-			So I can only delete
-			*/
 			// Window.localStorage
 			if(window.hasOwnProperty('permission_local_storage') && (!permission_local_storage)){
 				try{
@@ -441,11 +493,21 @@
 					window.eval = new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {			  	
 				    	if(window["eval_notice"]){
-				    		window["eval_notice"]=false;
-				      	console.log('EVAL DISABLED for '+location );	
+				    		try{
+				    			window["eval_notice"]=false;
+				      		console.log('EVAL DISABLED for '+location );	
+				      	}
+				      	catch(error){
+				      		//pass
+				      	}
 				    	}
-					  	let log5 = document.getElementById('jswrapper-log5');
-					  	log5.value = parseInt(log5.value)+1;
+				    	try{
+						  	let log5 = document.getElementById('jswrapper-log5');
+						  	log5.value = parseInt(log5.value)+1;
+						  }
+						  catch(error){
+						  	//pass
+						  }
 					  }
 					});
 				  Object.defineProperty(window, 'eval', {
