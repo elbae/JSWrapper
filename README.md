@@ -9,3 +9,5 @@ Loading and testing:<br/>
 5. Enable the extension. <br/>
 
 In chrome://extensions is possible to open the console page for the background script.
+
+<a href="https://github.com/elbae/JSWrapping/wiki">Wiki</a>
