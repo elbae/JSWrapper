@@ -5,10 +5,10 @@
  */
 var PopupController = function () {
   this.SAVE_NAME = 'policies'
-  this.button_ = document.getElementById('bt_reload')
-  this.button_enable = document.getElementById('bt_enable')
-  this.button_disable = document.getElementById('bt_disable')
-  this.check_ui = document.getElementsByName('check_ui')[0]
+  this.buttonReload = document.getElementById('bt_reload')
+  this.buttonEnable = document.getElementById('bt_enable')
+  this.buttonDisable = document.getElementById('bt_disable')
+  this.checkUi = document.getElementsByName('check_ui')[0]
   this.setValues()
   this.addCheckListeners()
 }
@@ -49,9 +49,9 @@ PopupController.prototype = {
     })
   },
   addCheckListeners: function () {
-    this.button_.addEventListener('click', this.handleClick_.bind(this))
-    this.button_enable.addEventListener('click', this.handleClick_enable.bind(this))
-    this.button_disable.addEventListener('click', this.handleClick_disable.bind(this))
+    this.buttonReload.addEventListener('click', this.handleClick_.bind(this))
+    this.buttonEnable.addEventListener('click', this.handleClick_enable.bind(this))
+    this.buttonDisable.addEventListener('click', this.handleClick_disable.bind(this))
     var i = 0
     var inputList = document.getElementsByTagName('input')
     for (i = 0; i < inputList.length; i++) {
@@ -89,7 +89,7 @@ PopupController.prototype = {
   },
   updateValues: function () {
     let backgroundWindow = chrome.extension.getBackgroundPage()
-    let list = backgroundWindow.url_log_list
+    let list = backgroundWindow.urlLogList
     var localArray
     chrome.tabs.getSelected(null, function (tab) {
       var actualUrl = tab.url

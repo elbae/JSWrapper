@@ -89,7 +89,7 @@ function logMEl (value, key, map) {
 /*
   Prints all the values blocked which are stored in the structure
 */
-var printMap = function () {
+function printMap () {
   console.info('*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*')
   urlLogList.forEach(logMEl)
   console.info('*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*')
@@ -165,7 +165,7 @@ function checkUrls (req) {
   Getting the policies from the chrome.storage.sync and saving them in the local storage.
   If not found, creating them and saving in the local Storage
 */
-function load_policies_from_storage () {
+function loadPoliciesFromStorage () {
   chrome.storage.sync.get(SAVE_NAME, function (result) {
     if (result.policies !== undefined) {
       try {
@@ -184,7 +184,7 @@ function load_policies_from_storage () {
 /*
   Adds the listeners for the webRequests
 */
-function add_webRequest_listener () {
+function addWebRequestListener () {
   try {
     chrome.webRequest.onBeforeRequest.addListener(
       function (info) {
@@ -205,7 +205,7 @@ function add_webRequest_listener () {
 /*
   Adds listener for requests: get/set
 */
-function add_message_listener () {
+function addMessageListener () {
   try {
     chrome.runtime.onMessage.addListener(
       function (request, sender, sendResponse) {
@@ -261,9 +261,10 @@ function add_message_listener () {
           */
           let logEvent = parseInt(request.event) - 1
           let logDomain = request.domain
+          var tmpArray
           // I'm actually incrementing the value instead of changing it every time with request.value
           if (urlLogList.has(logDomain) === true) {
-            var tmpArray = JSONparse(urlLogList.get(logDomain))
+            tmpArray = JSONparse(urlLogList.get(logDomain))
             switch (logEvent) {
               case 0: case 1: case 2: case 3: case 4:
                 tmpArray[logEvent] = tmpArray[logEvent] + 1
@@ -277,7 +278,7 @@ function add_message_listener () {
             refreshBadge()
           } else {
             console.info('[*] Content changed without reloading page [*] ')
-            var tmpArray = new Array(5).fill(0)
+            tmpArray = new Array(5).fill(0)
             tmpArray[logEvent] = 1
             let tmpArrayString = JSONstring(tmpArray)
             urlLogList.set(logDomain, tmpArrayString)
@@ -312,7 +313,7 @@ function add_message_listener () {
   }
 }
 
-load_policies_from_storage()
-add_message_listener()
-add_webRequest_listener()
+loadPoliciesFromStorage()
+addMessageListener()
+addWebRequestListener()
 console.info(`[Working...]`)
