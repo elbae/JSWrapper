@@ -4,7 +4,7 @@
  * @constructor
  */
 var PopupController = function () {
-  this.SAVE_NAME = 'policies'
+  //this.policies = 'policies'
   this.buttonReload = document.getElementById('bt_reload')
   this.buttonEnable = document.getElementById('bt_enable')
   this.buttonDisable = document.getElementById('bt_disable')
@@ -42,7 +42,7 @@ PopupController.prototype = {
     var backgroundWindow = chrome.extension.getBackgroundPage()
     backgroundWindow.policiesArray = valueArray
     var extList = JSON.stringify(valueArray)
-    chrome.storage.sync.set({SAVE_NAME: extList}, function () {
+    chrome.storage.sync.set({policies: extList}, function () {
       chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.update(tabs[0].id, {url: tabs[0].url})
       })
@@ -68,7 +68,7 @@ PopupController.prototype = {
     var policiesArray = [true, true, true, true, true, true, true, true, true, true]
     backgroundWindow.policiesArray = policiesArray
     var extList = JSON.stringify(policiesArray)
-    chrome.storage.sync.set({SAVE_NAME: extList}, function () {
+    chrome.storage.sync.set({policies: extList}, function () {
       chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.update(tabs[0].id, {url: tabs[0].url})
       })
@@ -80,7 +80,7 @@ PopupController.prototype = {
     var policiesArray = [false, false, false, false, false, false, false, false, false, false]
     backgroundWindow.policiesArray = policiesArray
     var extList = JSON.stringify(policiesArray)
-    chrome.storage.sync.set({SAVE_NAME: extList}, function () {
+    chrome.storage.sync.set({policies: extList}, function () {
       chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.update(tabs[0].id, {url: tabs[0].url})
       })

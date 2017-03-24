@@ -3,82 +3,82 @@
 				variable used to block multiple write on console
 				default value: false -> log shown in popup
 			*/
-			window["cookie_read_notice"] = false;
-			window["cookie_write_notice"] = false;
-			window["ui_notice"] = false;
-			window["eval_notice"] = false;
-			window["document_write_notice"] = false;
+			window["cookieReadNotice"] = false;
+			window["cookieWriteNotice"] = false;
+			window["uiNotice"] = false;
+			window["evalNotice"] = false;
+			window["documentWriteNotice"] = false;
 
 			// We do not modify the console logging methods			
 			try
 			{
-				// permission_ui
-				Object.defineProperty(window,'permission_ui',{
-				      value:${policy_array[0]},
+				// permissionUi
+				Object.defineProperty(window,'permissionUi',{
+				      value:${policyArray[0]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
 				    });
-				// permission_read_cookie
-				Object.defineProperty(window,'permission_read_cookie',{
-				      value:${policy_array[1]},
+				// permissionReadCookie
+				Object.defineProperty(window,'permissionReadCookie',{
+				      value:${policyArray[1]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
 				    });
-				// permission_write_cookie
-				Object.defineProperty(window,'permission_write_cookie',{
-				      value:${policy_array[2]},
+				// permissionWriteCookie
+				Object.defineProperty(window,'permissionWriteCookie',{
+				      value:${policyArray[2]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
 				    });
-				// permission_document_write 
-				Object.defineProperty(window,'permission_document_write',{
-				      value:${policy_array[3]},
+				// permissionDocumentWrite 
+				Object.defineProperty(window,'permissionDocumentWrite',{
+				      value:${policyArray[3]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
 				    });
-				// permission_local_storage 
-				Object.defineProperty(window,'permission_local_storage',{
-				      value:${policy_array[4]},
+				// permissionLocalStorage 
+				Object.defineProperty(window,'permissionLocalStorage',{
+				      value:${policyArray[4]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
 				    });
-				// permission_session_storage
-				Object.defineProperty(window,'permission_session_storage',{
-				      value:${policy_array[5]},
+				// permissionSessionStorage
+				Object.defineProperty(window,'permissionSessionStorage',{
+				      value:${policyArray[5]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
 				    });
-				// permission_external_communication 
-				Object.defineProperty(window,'permission_external_communication',{
-				      value:${policy_array[6]},
+				// permissionExternalCommunication 
+				Object.defineProperty(window,'permissionExternalCommunication',{
+				      value:${policyArray[6]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
 				    });
-				// permission_navigator 
-				Object.defineProperty(window,'permission_navigator',{
-				      value:${policy_array[7]},
+				// permissionNavigator 
+				Object.defineProperty(window,'permissionNavigator',{
+				      value:${policyArray[7]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
 				    });
-				// permission_notification 
-				Object.defineProperty(window,'permission_notification',{
-				      value:${policy_array[8]},
+				// permissionNotification 
+				Object.defineProperty(window,'permissionNotification',{
+				      value:${policyArray[8]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
 				    });
 				//(Object.freeze || Object)(Object.prototype);			
-				// permission_eval 
-				Object.defineProperty(window,'permission_eval',{
-				      value:${policy_array[9]},
+				// permissionEval 
+				Object.defineProperty(window,'permissionEval',{
+				      value:${policyArray[9]},
 				      configurable:false,
 				      writable:false,
 				      enumerable:false
@@ -89,14 +89,14 @@
 				console.error(error);
 
 			}
-			if( window.hasOwnProperty('permission_ui') && (!permission_ui)){
+			if( window.hasOwnProperty('permissionUi') && (!permissionUi)){
 				// wrapping alert function
 				try
 				{
 					var alert =  new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {
-					  	if(window["ui_notice"]){
-					  		window["ui_notice"] = false;
+					  	if(window["uiNotice"]){
+					  		window["uiNotice"] = false;
 					    	try{
 					    		console.log('UI DISABLED');
 					    	}
@@ -127,9 +127,9 @@
 				{
 					var prompt =  new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {
-					  	if(window["ui_notice"]){
+					  	if(window["uiNotice"]){
 					  		try{
-					  			window["ui_notice"] = false;
+					  			window["uiNotice"] = false;
 					    		console.log('UI DISABLED');
 					    	}
 					    	catch(error){
@@ -159,9 +159,9 @@
 				{
 					var confirm =  new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {
-					  	if(window["ui_notice"]){
+					  	if(window["uiNotice"]){
 					  		try{
-					  			window["ui_notice"] = false;
+					  			window["uiNotice"] = false;
 					  			console.log('UI DISABLED');
 					  		}
 					  		catch(error){
@@ -191,9 +191,9 @@
 				{
 					var open =  new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {
-					  	if(window["ui_notice"]){
+					  	if(window["uiNotice"]){
 					  		try{
-						  		window["ui_notice"] = false;
+						  		window["uiNotice"] = false;
 						    	console.log('UI DISABLED');
 						    }
 						    catch(error){
@@ -234,19 +234,19 @@
 			  	console.error(error);
 			  }
 			}
-			if(window.hasOwnProperty('permission_read_cookie') && window.hasOwnProperty('permission_write_cookie'))
+			if(window.hasOwnProperty('permissionReadCookie') && window.hasOwnProperty('permissionWriteCookie'))
 			{
 				// false - false
-				if( (permission_read_cookie === false) && (permission_write_cookie == false)){
+				if( (permissionReadCookie === false) && (permissionWriteCookie == false)){
 					try
 					{
 						Object.defineProperty(Document.prototype, 'cookie',{get : function(){},set : function(value){}});
 						Object.defineProperty(Document.prototype, 'cookie',{ configurable:false, writable:false});				
 						Object.defineProperty(document, 'cookie', {
 						    get: function() {
-						    	if(window["cookie_read_notice"]){
+						    	if(window["cookieReadNotice"]){
 						    		try{
-						    			window["cookie_read_notice"]=false;
+						    			window["cookieReadNotice"]=false;
 					        		console.log('READ COOKIE DISABLED for '+location );		        
 					        	}
 					        	catch(error){
@@ -263,9 +263,9 @@
 							  	return "";
 							    },
 						    set: function(val) {
-						    	if(window["cookie_write_notice"]){
+						    	if(window["cookieWriteNotice"]){
 						    		try{
-						    			window["cookie_write_notice"]=false;
+						    			window["cookieWriteNotice"]=false;
 					        		console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 					        	}
 					        	catch(error){
@@ -286,7 +286,7 @@
 				  	console.error(error);
 				  }					
 				} // false - true
-				else if( (permission_read_cookie === false) && (permission_write_cookie == true)){
+				else if( (permissionReadCookie === false) && (permissionWriteCookie == true)){
 					try
 					{
 						let old_cookie = Object.getOwnPropertyDescriptor(Document.prototype,'cookie');
@@ -294,9 +294,9 @@
 						Object.defineProperty(Document.prototype, 'cookie',{ configurable:false, writable:false});				
 						Object.defineProperty(document, 'cookie', {
 						    get: function() {
-						    	if(window["cookie_read_notice"]){
+						    	if(window["cookieReadNotice"]){
 						    		try{
-							    		window["cookie_read_notice"]=false;
+							    		window["cookieReadNotice"]=false;
 						        	console.log('READ COOKIE DISABLED for '+location );		        
 						        }
 						        catch(error){
@@ -321,7 +321,7 @@
 				  	console.error(error);
 				  }
 				} // true - false
-				else if( (permission_read_cookie === true) && (permission_write_cookie == false)){
+				else if( (permissionReadCookie === true) && (permissionWriteCookie == false)){
 					try
 					{
 						let old_cookie = Object.getOwnPropertyDescriptor(Document.prototype,'cookie');
@@ -332,9 +332,9 @@
 						    	return old_cookie.get.call(document);
 						    },
 						    set: function(val) {
-						    	if(window["cookie_write_notice"]){
+						    	if(window["cookieWriteNotice"]){
 						    		try{
-							    		window["cookie_write_notice"]=false;
+							    		window["cookieWriteNotice"]=false;
 						        	console.log('WRITE COOKIE DISABLED for '+location + 'with value: '+val );	
 						        }
 						        catch(error){
@@ -368,7 +368,13 @@
 						Object.defineProperty(document, 'cookie',{
 					    get: function() {
 					    	try{
-					    		console.log('Getting cookie...');
+					    		try{
+								  	let log2 = document.getElementById('jswrapper-log2');
+								  	log2.value = parseInt(log2.value)+1;
+								  }
+								  catch(error){
+
+								  }
 					    	}
 					    	catch(error){
 					    		//pass
@@ -377,7 +383,13 @@
 					    },
 					    set: function(value) {
 					    	try{
-						    	console.log('Setting cookie...'+value);
+						    	try{
+								  	let log3 = document.getElementById('jswrapper-log3');
+								  	log3.value = parseInt(log3.value)+1;
+								  }
+								  catch(error){
+
+								  }
 						    }
 						    catch(error){
 						    	//pass
@@ -393,14 +405,14 @@
 			}
 
 
-			if(window.hasOwnProperty('permission_document_write') && (!permission_document_write)){
+			if(window.hasOwnProperty('permissionDocumentWrite') && (!permissionDocumentWrite)){
 				try
 				{
 					document.write =  new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {					  			  	
-					  	if(window["document_write_notice"]){
+					  	if(window["documentWriteNotice"]){
 					  		try{
-						  		window["document_write_notice"]=false;
+						  		window["documentWriteNotice"]=false;
 						    	console.log('DOCUMENT WRITE DISABLED for '+location );	
 						    }
 						    catch(error){
@@ -428,7 +440,7 @@
 				}
 			}
 			// Window.localStorage
-			if(window.hasOwnProperty('permission_local_storage') && (!permission_local_storage)){
+			if(window.hasOwnProperty('permissionLocalStorage') && (!permissionLocalStorage)){
 				try{
 					Object.defineProperty(window,'localStorage',{
 					value: null,
@@ -442,7 +454,7 @@
 				}
 			}
 			// Window.sessionStorage
-			if(window.hasOwnProperty('permission_session_storage') && (!permission_session_storage)){
+			if(window.hasOwnProperty('permissionSessionStorage') && (!permissionSessionStorage)){
 				try{
 					Object.defineProperty(window,'sessionStorage',{
 					value: null,
@@ -456,7 +468,7 @@
 				}
 			}
 			
-			if( window.hasOwnProperty('permission_navigator') && (!permission_navigator)){
+			if( window.hasOwnProperty('permissionNavigator') && (!permissionNavigator)){
 				try{ /* writable : false, configurable : true*/
 					Object.defineProperty(window, 'navigator', {
 					value: null,
@@ -475,7 +487,7 @@
 					console.error(error);
 				}
 			}
-			if( window.hasOwnProperty('permission_notification') && (!permission_notification)){
+			if( window.hasOwnProperty('permissionNotification') && (!permissionNotification)){
 				try{ /* writable : false, configurable : true*/
 					Object.defineProperty(window, 'Notification', {
 					value: null,
@@ -488,13 +500,13 @@
 					console.error(error);
 				}
 			}
-			if( window.hasOwnProperty('permission_eval') && (!permission_eval)){
+			if( window.hasOwnProperty('permissionEval') && (!permissionEval)){
 				try{
 					window.eval = new Proxy(function() {}, {
 					  apply: function(target, thisArg, argumentsList) {			  	
-				    	if(window["eval_notice"]){
+				    	if(window["evalNotice"]){
 				    		try{
-				    			window["eval_notice"]=false;
+				    			window["evalNotice"]=false;
 				      		console.log('EVAL DISABLED for '+location );	
 				      	}
 				      	catch(error){
@@ -519,5 +531,30 @@
 				catch(error){
 					console.error(error);
 				}
-			}			
-			
+			}
+			else{
+				let old_eval = window.eval
+				try{
+					window.eval = new Proxy(function() {}, {
+					  apply: function(target, thisArg, argumentsList) {				    	
+				    	try{
+						  	let log5 = document.getElementById('jswrapper-log5');
+						  	log5.value = parseInt(log5.value)+1;
+						  }
+						  catch(error){
+						  	//pass
+						  }
+						  old_eval.apply(thisArg,argumentsList)
+					  }
+					});
+				  Object.defineProperty(window, 'eval', {
+					  configurable:false,
+					  writable:false,
+					  enumerable:false
+					});
+				}
+				catch(error){
+					console.error(error);
+				}
+				
+			}
