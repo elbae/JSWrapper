@@ -1,4 +1,4 @@
-# JSWrapping
+# JSWrapper
 A Chrome extension -> check this <a href="https://github.com/elbae/JSWrapping/wiki">Wiki</a>
 
 Loading and testing the extension:<br/>
