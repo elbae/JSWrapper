@@ -3,7 +3,7 @@ A Chrome extension -> check this <a href="https://github.com/elbae/JSWrapping/wi
 
 Disable some JavaScript methods (i.e. window.eval) and properties accesses ( i.e. cookie read/write). Attempts to Safe login and registration by blocking external requests. Gives feedback to user about page's attempts to execute document.cookie and window.eval.
 
-* Block pop-under like http://popunderjs.com/
+* Blocks pop-under like http://popunderjs.com/
 
 Load and test the extension:<br/>
 1. Visit chrome://extensions in your browser. <br/>
