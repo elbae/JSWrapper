@@ -1,7 +1,11 @@
 # JSWrapper
 A Chrome extension -> check this <a href="https://github.com/elbae/JSWrapping/wiki">Wiki</a>
 
-Loading and testing the extension:<br/>
+Disable some JavaScript methods (i.e. window.eval) and properties accesses ( i.e. cookie read/write). Attempts to Safe login and registration by blocking external requests. Gives feedback to user about page's attempts to execute document.cookie and window.eval.
+
+* Block pop-under like http://popunderjs.com/
+
+Load and test the extension:<br/>
 1. Visit chrome://extensions in your browser. <br/>
 2. Ensure that the Developer mode checkbox in the top right-hand corner is checked.<br/>
 3. Click Load unpacked extension… to pop up a file-selection dialog. <br/>
